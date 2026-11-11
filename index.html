@@ -1,228 +1,742 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>AquaTrace Website</title>
+<title>AquaTrace</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Concept: a hydrographic survey sheet. Pale chart paper, ink-blue data, and one rhodamine tracer-dye pink that marks whatever is being traced. */
+/* Layout: navy rail + light workbench; every screen is header, KPI/controls row, then data panels with a right-hand detail drawer */
 :root{
-  --paper:#eef3f5; --card:#fbfdfe; --ink:#0a1f33; --muted:#4f677a; --line:#c6d6df; --water:#1b6ea8; --dye:#d7254f; --dye-soft:#fce3ea;
-  --ok:#1b7f47; --ok-soft:#dff3e7; --warn:#a56a0b; --warn-soft:#fbefd5; --crit:#b8332a; --crit-soft:#fbe3e0;
-  --serif:'Instrument Serif',Georgia,'Times New Roman',serif; --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --bg:#f1f6f9; --surface:#ffffff; --surface2:#f6fafc; --fg:#0e2233; --muted:#5a7183; --line:#d9e4eb;
+  --nav:#0b2540; --nav-fg:#b9cde0; --nav-active:#12385e;
+  --accent:#0b8796; --accent-ink:#ffffff; --accent-soft:#dff3f5;
+  --ok:#1b7f47; --ok-soft:#dff3e7; --warn:#a56a0b; --warn-soft:#fbefd5; --crit:#b8332a; --crit-soft:#fbe3e0; --info:#2a62a8; --info-soft:#e1ecf8;
+  --c1:#0b8796; --c2:#c47a12; --c3:#6a58b8; --grid:#e3ecf1;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; --head:'Space Grotesk','Inter',system-ui,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#07131d; --card:#0d1f2e; --ink:#e4eef5; --muted:#8ea6b8; --line:#1f3649; --water:#5db4f0; --dye:#ff6b8d; --dye-soft:#3b1624;
-  --ok:#4fc984; --ok-soft:#123a27; --warn:#e3ad4e; --warn-soft:#3d2e10; --crit:#f0786d; --crit-soft:#431c19; color-scheme:dark}}
+  --bg:#08141f; --surface:#0e1f2e; --surface2:#122638; --fg:#e3eef5; --muted:#8ea5b7; --line:#1f3649;
+  --nav:#050f18; --nav-fg:#8fa9bf; --nav-active:#0f2a40;
+  --accent:#3cc3d4; --accent-ink:#04202a; --accent-soft:#103642;
+  --ok:#4fc984; --ok-soft:#123a27; --warn:#e3ad4e; --warn-soft:#3d2e10; --crit:#f0786d; --crit-soft:#431c19; --info:#7db2ee; --info-soft:#14304f;
+  --c1:#3cc3d4; --c2:#e6a850; --c3:#a89cf2; --grid:#1a2f40; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#07131d; --card:#0d1f2e; --ink:#e4eef5; --muted:#8ea6b8; --line:#1f3649; --water:#5db4f0; --dye:#ff6b8d; --dye-soft:#3b1624;
-  --ok:#4fc984; --ok-soft:#123a27; --warn:#e3ad4e; --warn-soft:#3d2e10; --crit:#f0786d; --crit-soft:#431c19; color-scheme:dark}
+  --bg:#08141f; --surface:#0e1f2e; --surface2:#122638; --fg:#e3eef5; --muted:#8ea5b7; --line:#1f3649;
+  --nav:#050f18; --nav-fg:#8fa9bf; --nav-active:#0f2a40;
+  --accent:#3cc3d4; --accent-ink:#04202a; --accent-soft:#103642;
+  --ok:#4fc984; --ok-soft:#123a27; --warn:#e3ad4e; --warn-soft:#3d2e10; --crit:#f0786d; --crit-soft:#431c19; --info:#7db2ee; --info-soft:#14304f;
+  --c1:#3cc3d4; --c2:#e6a850; --c3:#a89cf2; --grid:#1a2f40; color-scheme:dark}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;margin:0}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--paper)}
-h1,h2,h3,h4{margin:0;font-weight:400}
-p{margin:0}a{color:inherit}
-.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-.mono{font-family:var(--mono)}
-.kick{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.kick b{color:var(--dye);font-weight:500}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:3px;font-weight:500;text-decoration:none;border:1px solid var(--ink);cursor:pointer;font-size:15px;transition:background .15s,color .15s,transform .15s}
-.btn.pri{background:var(--dye);border-color:var(--dye);color:#fff}.btn.pri:hover{filter:brightness(1.08)}
-.btn.line:hover{background:var(--ink);color:var(--paper)}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--head);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:22px}h2{font-size:16px}h3{font-size:13px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.app.min{grid-template-columns:64px minmax(0,1fr)}
+.side{background:var(--nav);color:var(--nav-fg);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:16px 10px 16px max(12px,env(safe-area-inset-left,0px));gap:4px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;color:#fff;font-family:var(--head);font-weight:700;font-size:18px}
+.brand svg{flex:none}
+.nav{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;border:0;background:none;color:inherit;cursor:pointer;text-align:left;width:100%}
+.nav:hover{background:var(--nav-active)}
+.nav[aria-current="page"]{background:var(--nav-active);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.nav svg,.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.min .lbl,.min .brand span,.min .sidefoot{display:none}
+.sidefoot{margin-top:auto;font-size:11px;line-height:1.4;padding:8px;color:var(--nav-fg)}
+.main{min-width:0;padding:0 max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);margin:0 calc(-1*max(16px,env(safe-area-inset-right,0px))) 20px calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.top .grow{flex:1;min-width:0}
+.demo{display:inline-flex;align-items:center;gap:6px;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:4px 8px;font-size:12px;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:7px 12px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 10px;max-width:100%}
+textarea{width:100%;min-height:84px;resize:vertical}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500;min-width:0}
+label.f input,label.f select,label.f textarea{color:var(--fg)}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.head p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}
+.split{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 340px;align-items:start}
+@media (max-width:1100px){.split{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.card.flat{background:var(--surface2)}
+.card h2{margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.kpi{position:relative;display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:transform .15s,border-color .15s;text-align:left}
+.kpi:hover{transform:translateY(-2px);border-color:var(--accent)}
+.kpi .lab{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.kpi .num{font-family:var(--head);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .tr{font-size:12px;color:var(--muted)}
+.up{color:var(--ok)}.dn{color:var(--crit)}
+.spark{width:100%;height:30px;margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-warn{background:var(--warn-soft);color:var(--warn)}.b-crit{background:var(--crit-soft);color:var(--crit)}.b-info{background:var(--info-soft);color:var(--info)}.b-neu{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.row{cursor:pointer}tr.row:hover td{background:var(--surface2)}
+tr.sel td{background:var(--accent-soft)}
+.num-r{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;cursor:pointer;font-size:12.5px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px;overflow-x:auto}
+.tab{border:0;background:none;padding:9px 14px;cursor:pointer;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.chart{width:100%;height:auto;display:block}
+.chart .ax{fill:var(--muted);font-size:11px}.chart .gl{stroke:var(--grid);stroke-width:1}.chart .tx{fill:var(--fg);font-size:11px;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list li{padding:9px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.list li:last-child{border:0}
+.map-wrap{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.map{width:100%;height:auto;display:block;touch-action:none;cursor:grab;user-select:none}
+.map:active{cursor:grabbing}
+.mapctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px}
+.mapctl .btn{padding:4px 10px;font-size:16px;line-height:1}
+.maplegend{position:absolute;left:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:11.5px;max-width:260px}
+.ramp{height:8px;border-radius:4px;margin:4px 0}
+.zone{fill-opacity:.5}
+.mk{cursor:pointer}
+.mk circle.pulse{animation:pulse 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.4);opacity:0}}
+.timeline{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.timeline input[type=range]{flex:1;min-width:160px;padding:0}
+.stepper{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.step{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;color:var(--muted)}
+.step[aria-current="step"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.step.done{color:var(--ok);border-color:var(--ok)}
+.bar{height:8px;border-radius:4px;background:var(--grid);overflow:hidden}.bar>i{display:block;height:100%;background:var(--accent);transition:width .6s ease}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:28px max(16px,4%);max-width:820px;margin:auto}
+.doc h1{font-size:24px;margin-bottom:4px}.doc h2{margin:20px 0 6px;font-size:16px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.doc p{margin:6px 0;max-width:70ch}
+.stamp{display:inline-block;border:2px solid var(--warn);color:var(--warn);padding:2px 10px;border-radius:4px;font-weight:700;letter-spacing:.08em;font-size:12px}
+.stamp.ok{border-color:var(--ok);color:var(--ok)}
+.note{background:var(--info-soft);color:var(--fg);border-left:3px solid var(--info);padding:8px 12px;border-radius:0 6px 6px 0;font-size:12.5px}
+.note.w{background:var(--warn-soft);border-left-color:var(--warn)}
+.modal{position:fixed;inset:0;background:rgba(5,15,24,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .15s}
+.modal>.card{width:min(520px,100%);max-height:90vh;overflow:auto;animation:rise .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes rise{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.tour{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100% - 32px));z-index:40;background:var(--nav);color:#e9f2f9;border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.tour h3{color:#fff;font-size:15px;margin-bottom:6px}.tour p{margin:0 0 10px;font-size:13px;color:#c5d6e5}
+.tour .btn{background:transparent;color:#e9f2f9;border-color:#3a5671}.tour .btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.skel{background:linear-gradient(90deg,var(--grid),var(--surface2),var(--grid));background-size:200% 100%;animation:sk 1.2s infinite;border-radius:6px;height:14px}
+@keyframes sk{to{background-position:-200% 0}}
+.screen{animation:rise .25s ease both}
+.flag{color:var(--crit);font-size:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:820px){
+  .app,.app.min{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;overflow-x:auto;padding:6px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px));z-index:25}
+  .brand,.sidefoot,#toggleSide{display:none}
+  .nav{width:auto;flex:none}.nav .lbl{display:inline;font-size:12px}
+  .min .lbl{display:inline}
+  .top{top:calc(env(safe-area-inset-top,0px) + 50px);position:static}
+  .two{grid-template-columns:1fr}
+}
+/* identity pass: hydrographic chart. Ink-blue data, glacier paper, one rhodamine tracer-dye accent for selection and primary actions */
+:root{--bg:#edf2f5;--surface2:#f3f7f9;--fg:#0a1f33;--muted:#566d7e;--line:#d3dee5;--nav:#0a1f33;--nav-fg:#a8bccb;--nav-active:#122e48;--accent:#d7254f;--accent-ink:#fff;--accent-soft:#fce3ea;--c1:#1b6ea8;--c2:#c47a12;--c3:#6a58b8;--grid:#e1eaef;--info:#1b6ea8;--info-soft:#e0edf8;
+ --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--head:'Instrument Serif',Georgia,serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;--banner1:#0a1f33;--banner2:#0f3350}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#07131d;--surface:#0d1f2e;--surface2:#112737;--fg:#e4eef5;--line:#1d3548;--nav:#040d14;--nav-active:#0e2638;--accent:#ff6b8d;--accent-ink:#2a0511;--accent-soft:#3b1624;--c1:#5db4f0;--c2:#e6a850;--c3:#a89cf2;--grid:#18303f;--info:#7db2ee;--info-soft:#14304f;--banner1:#06131d;--banner2:#0c2940}}
+:root[data-theme="dark"]{--bg:#07131d;--surface:#0d1f2e;--surface2:#112737;--fg:#e4eef5;--line:#1d3548;--nav:#040d14;--nav-active:#0e2638;--accent:#ff6b8d;--accent-ink:#2a0511;--accent-soft:#3b1624;--c1:#5db4f0;--c2:#e6a850;--c3:#a89cf2;--grid:#18303f;--info:#7db2ee;--info-soft:#14304f;--banner1:#06131d;--banner2:#0c2940}
+h1,h2{font-family:var(--head);font-weight:400;letter-spacing:-.005em}
+h3{font-family:var(--font);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.head h1{font-size:34px;line-height:1}.card h2{font-size:21px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--head);font-weight:400;font-size:26px}
+.kpi .num{font-family:var(--head);font-weight:400;font-size:46px;line-height:1}
+.kpi .lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.card,.map-wrap,.doc{border-radius:4px}
+.btn,.chip,input,select,textarea,.step{border-radius:3px}
+.chip,.step{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em}
+.badge{border-radius:2px;text-transform:uppercase;font-size:10px;letter-spacing:.06em;padding:3px 7px;font-family:var(--mono);font-weight:500}
+.badge::before{width:5px;height:5px;border-radius:1px}
+.tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;background:var(--surface2);border:1px solid var(--line);border-radius:3px 9px 9px 3px;padding:1px 9px 1px 7px;white-space:nowrap}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;border:1.5px solid var(--muted);background:var(--bg)}
+tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+th{font-family:var(--mono);font-size:10.5px}
+.chart .ax{font-family:var(--mono);font-size:10px}.chart .tx{font-family:var(--mono);font-size:10.5px}
+.tour h3{font-family:var(--head);font-size:22px;font-weight:400;text-transform:none;letter-spacing:0;color:#fff}
+.doc h1{font-size:40px;line-height:1}.doc h2{font-size:22px;margin:22px 0 6px}
+.banner{border-radius:4px;padding:28px 28px;border:1px solid #1b3b57}
+.banner::after{display:none}
+.banner h1{font-size:46px;line-height:1}
+.banner .rings{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.banner .stat b{font-family:var(--head);font-weight:400;font-size:34px}
+.banner .stat div{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em}
+.banner p{color:#a9c4d6}
+.maplegend{border-radius:4px}
+.mk text{font-family:var(--mono)}
+.nav[aria-current="page"]{box-shadow:inset 3px 0 0 var(--accent)}
+.top .demo{border-radius:2px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.btn.pri{box-shadow:2px 2px 0 var(--nav)}
+.btn.pri:active{box-shadow:none}
+.stamp{border-radius:2px}
+
+.who{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.who i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--nav);color:#fff;font-style:normal;font-family:var(--mono);font-size:11px}
+.start{min-height:100vh;background:#0a1f33;color:#eaf2f7;position:relative;overflow:hidden;display:flex}
+.start .rings{position:absolute;inset:0;width:100%;height:100%}
+.sin{position:relative;z-index:1;width:100%;max-width:1100px;margin:0 auto;padding:max(12px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) 24px max(20px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;min-height:100vh}
+.stop{display:flex;justify-content:space-between;align-items:center;padding-block:18px}
+.slogo{font-family:var(--head);font-size:28px;display:flex;gap:10px;align-items:center;color:#fff}
+.dots{display:flex;gap:6px}.dots i{width:24px;height:3px;background:#2c4a63}.dots i.on{background:#ff6b8d}
+.smain{flex:1;display:flex;align-items:center;padding-block:16px}
+.sgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center;width:100%}
+@media (max-width:860px){.sgrid{grid-template-columns:minmax(0,1fr)}}
+.sh1{font-family:var(--head);font-weight:400;font-size:clamp(48px,8vw,104px);line-height:.95;letter-spacing:-.02em;margin:14px 0 20px;color:#fff}.sh1 em{color:#ff6b8d}
+.sh1.m{font-size:clamp(40px,6vw,76px)}
+.skick{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8fb0c6}
+.slead{font-size:18px;color:#a9c4d6;max-width:52ch}
+.sbtn{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.btn.sghost{background:transparent;color:#eaf2f7;border-color:#3a5b78}
+.btn.sghost:hover{border-color:#ff6b8d}
+.pass{position:relative;background:#fbfdfe;color:#0a1f33;border-radius:6px 20px 20px 6px;padding:26px 26px 22px 48px;box-shadow:8px 8px 0 #ff6b8d;min-width:0}
+.pass::before{content:"";position:absolute;left:17px;top:20px;width:12px;height:12px;border-radius:50%;border:2px solid #0a1f33;background:#0a1f33}
+.pk{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#566d7e}
+.pn{font-family:var(--head);font-size:40px;line-height:1.02;margin:8px 0 16px}
+.pass dl{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:0;font-size:13px}.pass dt{color:#566d7e;font-family:var(--mono);font-size:11.5px}.pass dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.sfoot{font-family:var(--mono);font-size:11px;color:#7f9bb0;padding-top:16px;border-top:1px solid #1f3b54}
+.rules{list-style:none;margin:26px 0 0;padding:0;max-width:720px;border-top:1px solid #2c4a63}
+.rules li{padding:16px 0;border-bottom:1px solid #2c4a63;font-size:16px;color:#a9c4d6}.rules b{display:block;font-family:var(--head);font-size:28px;font-weight:400;color:#fff;line-height:1.1;margin-bottom:2px}
+.ack{display:flex;align-items:center;gap:10px;margin-top:22px;font-size:15px;cursor:pointer}
+.ack input{width:18px;height:18px;accent-color:#ff6b8d;padding:0}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;margin-top:28px}
+.opt{text-align:left;background:#0e2a44;border:1px solid #2c4a63;color:#eaf2f7;border-radius:4px;padding:20px;cursor:pointer;display:grid;gap:8px;align-content:start;transition:border-color .15s,transform .15s}
+.opt:hover{border-color:#ff6b8d;transform:translateY(-2px)}
+.opt b{font-family:var(--head);font-weight:400;font-size:30px;color:#fff;line-height:1.05}.opt span{font-size:14px;color:#a9c4d6}.opt small{font-family:var(--mono);color:#ff8fa8;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+/* design pass */
+:root{--shadow:0 1px 2px rgba(11,37,64,.05),0 4px 14px rgba(11,37,64,.05)}
+.side{background:linear-gradient(180deg,var(--nav) 0%,var(--nav) 100%)}
+.card{box-shadow:var(--shadow)}
+.card.flat,.kpi .chipic{box-shadow:none}
+.card h2{font-size:15px}
+.top{box-shadow:0 1px 0 var(--line),0 6px 16px rgba(11,37,64,.04)}
+th{background:var(--surface2);position:sticky;top:0}
+.btn,.chip,.nav,.tab{transition:background .15s,border-color .15s,color .15s,transform .15s}
 .btn:active{transform:translateY(1px)}
-:focus-visible{outline:2px solid var(--dye);outline-offset:3px}
-/* nav */
-.nav{display:flex;align-items:center;gap:26px;padding-block:20px;border-bottom:1px solid var(--line)}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:28px;text-decoration:none;margin-right:auto;line-height:1}
-.nav a.l{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--muted)}.nav a.l:hover{color:var(--ink)}
-.nav .btn{padding:8px 14px;font-size:13px}
-@media (max-width:820px){.nav a.l{display:none}}
-/* hero */
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:center;padding-block:64px 56px}
-@media (max-width:940px){.hero{grid-template-columns:minmax(0,1fr);padding-block:40px}}
-.hero h1{font-family:var(--serif);font-size:clamp(52px,7.4vw,104px);line-height:.94;letter-spacing:-.02em;margin:18px 0 24px}
-.hero h1 em{color:var(--dye);font-style:italic}
-.lead{font-size:18px;color:var(--muted);max-width:46ch}
-.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
-.fig{position:relative;border:1px solid var(--ink);background:var(--card);min-width:0}
-.ruler{height:9px;border-bottom:1px solid var(--ink);background:repeating-linear-gradient(90deg,var(--ink) 0 1px,transparent 1px 16px)}
-.fig canvas{display:block;width:100%;aspect-ratio:5/4}
-.cap{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.cap b{color:var(--ink);font-weight:500}
-.tag{position:absolute;right:16px;top:44px;width:min(236px,60%);background:var(--card);border:1px solid var(--ink);border-radius:4px 14px 14px 4px;padding:12px 14px 12px 30px;box-shadow:4px 4px 0 var(--dye);font-size:12px}
-.tag::before{content:"";position:absolute;left:10px;top:12px;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper)}
-.tag .v{font-family:var(--serif);font-size:38px;line-height:1;display:flex;align-items:baseline;gap:6px}.tag .v small{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.tag dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-family:var(--mono);font-size:11px}.tag dt{color:var(--muted)}.tag dd{margin:0;min-width:0;overflow-wrap:anywhere}
-@media (max-width:520px){.tag{position:static;width:auto;margin:10px;box-shadow:3px 3px 0 var(--dye)}}
-.stamp{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;font-weight:500}
-.s-ok{background:var(--ok-soft);color:var(--ok)}.s-warn{background:var(--warn-soft);color:var(--warn)}.s-crit{background:var(--crit-soft);color:var(--crit)}.s-neu{border:1px solid var(--line);color:var(--muted)}
-.ledger{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
-.ledger div{padding:18px 20px 18px 0;border-right:1px solid var(--line);margin-right:20px}.ledger div:last-child{border:0}
-.ledger b{display:block;font-family:var(--serif);font-weight:400;font-size:46px;line-height:1;font-variant-numeric:tabular-nums}
-.ledger span{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.04em}
-/* sections */
-section{padding-block:88px}
-.sh{max-width:760px;margin-bottom:48px}
-.sh h2{font-family:var(--serif);font-size:clamp(38px,5vw,64px);line-height:1;letter-spacing:-.015em;margin-top:12px}
-.sh h2 em{font-style:italic;color:var(--dye)}
-.sh p{margin-top:16px;color:var(--muted);font-size:17px;max-width:56ch}
-.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:0;padding:0;list-style:none;counter-reset:s}
-.flow li{position:relative;padding:0 20px 0 0}
-.flow li::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:12px;display:block;padding-bottom:12px;border-bottom:2px solid var(--ink);margin-bottom:14px;color:var(--dye)}
-.flow h3{font-family:var(--serif);font-size:28px;line-height:1.05;margin-bottom:6px}.flow p{font-size:14.5px;color:var(--muted)}
-.flow li:not(:last-child){margin-right:0}
-@media (max-width:860px){.flow{grid-template-columns:minmax(0,1fr);gap:24px}.flow li{padding:0}}
-.plate{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:48px;align-items:center;padding-block:44px;border-top:1px solid var(--line)}
-.plate.flip{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)}.plate.flip .txt{order:2}
-@media (max-width:900px){.plate,.plate.flip{grid-template-columns:minmax(0,1fr);gap:24px}.plate.flip .txt{order:0}}
-.plate h3{font-family:var(--serif);font-size:clamp(30px,3.4vw,44px);line-height:1;margin:10px 0 14px}
-.plate p{color:var(--muted);max-width:46ch}
-.plate .fig .in{padding:16px}
-.plate svg{width:100%;height:auto;display:block}
-.ax{fill:var(--muted);font:10px var(--mono)}.tx{fill:var(--ink);font:500 10.5px var(--mono)}
-.row{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:9px 0;border-bottom:1px solid var(--line);align-items:center}.row:last-child{border:0}
-.row .m{font-family:var(--mono);font-size:12px}.mu{color:var(--muted)}
-.draft{border:2px solid var(--dye);color:var(--dye);padding:2px 9px;font-family:var(--mono);font-weight:500;letter-spacing:.08em;font-size:11px;border-radius:2px;display:inline-block;transform:rotate(-2deg)}
-.doc h4{font-family:var(--serif);font-size:28px;line-height:1;margin:14px 0 8px}.ln{height:7px;background:var(--line);margin:7px 0;border-radius:2px}
-.integrity{background:#0a1f33;color:#eef3f5;padding-block:96px}
-.integrity .sh p{color:#9db6c8}.integrity .kick{color:#9db6c8}.integrity .kick b{color:#ff6b8d}.integrity .sh h2 em{color:#ff6b8d}
-.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid #2c4a63}
-@media (max-width:820px){.two{grid-template-columns:minmax(0,1fr)}}
-.col{padding:30px}.col+.col{border-left:1px solid #2c4a63}
-@media (max-width:820px){.col+.col{border-left:0;border-top:1px solid #2c4a63}}
-.col h3{font-family:var(--serif);font-size:32px;margin-bottom:18px}
-.col ul{margin:0;padding:0;list-style:none;display:grid;gap:14px}
-.col li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:15px;opacity:.92}
-.col li svg{width:20px;height:20px;fill:none;stroke:#7fd0a2;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:2px}.col.no li svg{stroke:#ff6b8d}
-.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));border-top:1px solid var(--ink)}
-.role{padding:20px 22px 8px 0}.role h3{font-family:var(--serif);font-size:28px;line-height:1.05;margin-bottom:8px}.role p{font-size:14.5px;color:var(--muted)}
-.final{border:1px solid var(--ink);background:var(--card);padding:52px max(24px,5%);display:flex;gap:28px;justify-content:space-between;align-items:center;flex-wrap:wrap;box-shadow:8px 8px 0 var(--dye)}
-.final h2{font-family:var(--serif);font-size:clamp(34px,4.4vw,58px);line-height:1;max-width:16ch}
-footer{padding-block:30px 48px;color:var(--muted);font-family:var(--mono);font-size:11.5px;border-top:1px solid var(--line)}
-footer .wrap{display:flex;gap:16px;justify-content:space-between;flex-wrap:wrap}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+.btn.pri:hover{filter:brightness(1.08)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:2px solid var(--accent-soft);outline-offset:0}
+.banner{position:relative;overflow:hidden;border-radius:14px;padding:22px 24px;margin-bottom:16px;color:#fff;background:linear-gradient(120deg,var(--banner1) 0%,var(--banner2) 100%);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.banner::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(172deg,transparent 0 22px,rgba(90,214,208,.08) 22px 23px);pointer-events:none}
+.banner>*{position:relative;z-index:1;min-width:0}
+.banner h1{color:#fff;font-size:26px}
+.banner p{margin:6px 0 0;color:#b9d3e2;max-width:62ch}
+.banner .stat{display:flex;gap:20px;flex-wrap:wrap}
+.banner .stat div{font-size:12px;color:#9ec2d6}.banner .stat b{display:block;font-family:var(--head);font-size:20px;color:#fff;font-variant-numeric:tabular-nums}
+.kpi .chipic{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--accent-soft);color:var(--accent);margin-bottom:6px}
+.kpi .chipic .ic{width:16px;height:16px}
+.kpi .lab{font-weight:500}
+.kpi .num{letter-spacing:-.02em}
+.map-wrap{box-shadow:var(--shadow)}
+.maplegend{box-shadow:var(--shadow)}
+.head h1{font-size:24px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
-<div class="wrap">
- <nav class="nav" aria-label="Main">
-  <a class="logo" href="#top"><svg width="24" height="28" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 2s9 9 9 15a9 9 0 0 1-18 0c0-6 9-15 9-15z" style="fill:var(--dye)"/><circle cx="12" cy="18" r="3.2" style="fill:var(--paper)"/></svg>AquaTrace</a>
-  <a class="l" href="#workflow">Workflow</a><a class="l" href="#platform">Platform</a><a class="l" href="#integrity">Integrity</a><a class="l" href="#users">Users</a>
-  <a class="btn line" href="https://claude.ai/artifact/9MGWdd1LtJLuEFvf4tne8m" target="_blank" rel="noopener">Open prototype</a>
- </nav>
- <header class="hero" id="top">
-  <div>
-   <div class="kick"><b>●</b> Prepared for Mark LeChevallier · Simulated prototype</div>
-   <h1>Every reading, <em>traced</em> to its source.</h1>
-   <p class="lead">Understand water systems. Monitor risks. Make evidence-based decisions. AquaTrace keeps each value tied to its laboratory, method, unit and reviewer, from the sampling point to the signed report.</p>
-   <div class="cta"><a class="btn pri" href="https://claude.ai/artifact/9MGWdd1LtJLuEFvf4tne8m" target="_blank" rel="noopener">Explore the prototype →</a><a class="btn line" href="#workflow">See the workflow</a></div>
-  </div>
-  <figure class="fig" style="margin:0">
-   <div class="ruler"></div>
-   <canvas id="trace" role="img" aria-label="Animation: tracer dye spreading through a simulated water distribution network"></canvas>
-   <div class="tag"><div class="v">0.31 <small>mg/L</small></div><dl><dt>Point</dt><dd>SP-12 tank outlet</dd><dt>Lab</dt><dd>Riverbend Ref. Lab (sim.)</dd><dt>Method</dt><dd>DPD colorimetric</dd><dt>Limit</dt><dd>0.02 mg/L</dd></dl><div style="margin-top:8px"><span class="stamp s-warn">Awaiting review</span></div></div>
-   <figcaption class="cap"><span><b>Fig. 1</b> Dye trace through the simulated Riverbend network</span><span>Not real data</span></figcaption>
-  </figure>
- </header>
- <div class="ledger"><div><b>14</b><span>SAMPLING POINTS ON THE DEMO NETWORK</span></div><div><b>5</b><span>MONITORING PROGRAMS</span></div><div><b>7</b><span>STEPS FROM LAB FILE TO REGISTER</span></div><div><b>1</b><span>NAMED REVIEWER BEFORE A REPORT IS APPROVED</span></div></div>
-</div>
-
-<main>
-<section id="workflow"><div class="wrap">
- <div class="sh"><div class="kick"><b>01</b> Workflow</div><h2>From a sampling point to a <em>signed</em> report</h2><p>The order specialists already work in. Each record carries its context forward instead of being retyped into the next tool.</p></div>
- <ol class="flow">
-  <li><h3>Plan sampling</h3><p>Programs with locations, frequency, methods and reviewers.</p></li>
-  <li><h3>Collect in the field</h3><p>Samples recorded with custody details, also without a connection.</p></li>
-  <li><h3>Receive results</h3><p>Lab files checked for units and duplicates. Source values kept.</p></li>
-  <li><h3>Analyse and review</h3><p>Compare locations, screen unusual values, open investigations.</p></li>
-  <li><h3>Report</h3><p>Findings, charts and references. A named specialist approves.</p></li>
- </ol></div></section>
-
-<section id="platform" style="padding-top:0"><div class="wrap">
- <div class="sh"><div class="kick"><b>02</b> Platform</div><h2>Five workspaces, one set of <em>records</em></h2><p>A sample selected on the map is the same sample in the laboratory register, the Legionella program and the report.</p></div>
-
- <div class="plate"><div class="txt"><div class="kick">Distribution map</div><h3>See the network, then the sample</h3><p>Pan across zones, tanks and pump stations. Switch between disinfectant residual, temperature, pressure, water age, sampling coverage and microbiological status, then step through the months.</p></div>
-  <figure class="fig" style="margin:0"><div class="ruler"></div><div class="in"><svg viewBox="0 0 640 190" role="img" aria-label="Map layer illustration"><g style="stroke:var(--line)"><line x1="0" y1="63" x2="640" y2="63"/><line x1="0" y1="126" x2="640" y2="126"/><line x1="160" y1="0" x2="160" y2="190"/><line x1="320" y1="0" x2="320" y2="190"/><line x1="480" y1="0" x2="480" y2="190"/></g>
-   <path d="M40 150 L150 150 L210 90 L330 80 L420 36 L560 46" style="stroke:var(--water);stroke-width:3;fill:none;stroke-opacity:.55"/><path d="M330 80 L400 126 L520 136" style="stroke:var(--water);stroke-width:2;fill:none;stroke-opacity:.55"/>
-   <circle cx="150" cy="150" r="9" style="fill:hsl(205,70%,32%)"/><circle cx="210" cy="90" r="9" style="fill:hsl(205,66%,46%)"/><circle cx="330" cy="80" r="9" style="fill:hsl(205,62%,60%)"/><circle cx="420" cy="36" r="9" style="fill:hsl(205,60%,74%)"/><circle cx="560" cy="46" r="9" style="fill:hsl(205,56%,86%)"/><circle cx="400" cy="126" r="9" style="fill:hsl(205,62%,66%)"/>
-   <circle cx="520" cy="136" r="9" style="fill:var(--card);stroke:var(--muted);stroke-dasharray:3 2"/><circle cx="330" cy="80" r="15" style="fill:none;stroke:var(--dye);stroke-width:2"/>
-   <text class="ax" x="20" y="182">Plant</text><text class="ax" x="470" y="166">Dead end · no data</text><text class="tx" x="12" y="16">DISINFECTANT RESIDUAL · relative scale</text></svg></div><figcaption class="cap"><span><b>Fig. 2</b> Layer view</span><span>Not a regulatory limit</span></figcaption></figure></div>
-
- <div class="plate flip"><div class="txt"><div class="kick">Legionella monitoring</div><h3>Evidence in one register</h3><p>Sample register, detection trends and an expert-review workspace. No universal thresholds. Conclusions wait for a qualified reviewer.</p></div>
-  <figure class="fig" style="margin:0"><div class="ruler"></div><div class="in"><div class="row"><span class="m">LEG-26-0057 · SP-04</span><span class="stamp s-ok">Not detected</span></div><div class="row"><span class="m">LEG-26-0058 · SP-12</span><span class="stamp s-warn">Detected</span></div><div class="row"><span class="m">LEG-26-0059 · SP-13</span><span class="stamp s-neu">Pending lab</span></div><div class="row"><span class="m">INV-001 · SP-09</span><span class="mu">Awaiting reviewer</span></div></div><figcaption class="cap"><span><b>Fig. 3</b> Sample register</span><span>Simulated</span></figcaption></figure></div>
-
- <div class="plate"><div class="txt"><div class="kick">Laboratory results</div><h3>Source values are never overwritten</h3><p>A correction is a separate entry with a reason and a reviewer. Every record keeps its custody trail and audit history.</p></div>
-  <figure class="fig" style="margin:0"><div class="ruler"></div><div class="in"><div class="row"><span class="mu">Source value</span><span class="m">0.31 mg/L · preserved</span></div><div class="row"><span class="mu">Proposed correction</span><span><span class="m">0.33 mg/L</span> <span class="stamp s-warn">Pending verification</span></span></div><div class="row"><span class="mu">Quality flags</span><span class="stamp s-ok">None</span></div><div class="row"><span class="mu">Audit trail</span><span class="m">3 entries</span></div></div><figcaption class="cap"><span><b>Fig. 4</b> Record detail</span><span>Simulated</span></figcaption></figure></div>
-
- <div class="plate flip"><div class="txt"><div class="kick">Analytics</div><h3>Flags that show their reasoning</h3><p>Unusual values are screened against a location’s own history. Each flag lists the numbers that triggered it.</p></div>
-  <figure class="fig" style="margin:0"><div class="ruler"></div><div class="in"><svg viewBox="0 0 420 140" role="img" aria-label="Trend with one flagged point"><g style="stroke:var(--line)"><line x1="30" x2="410" y1="30" y2="30"/><line x1="30" x2="410" y1="70" y2="70"/><line x1="30" x2="410" y1="110" y2="110"/></g>
-   <path d="M30 52 L70 50 L110 56 L150 54 L190 58 L230 60 L270 55 L310 104 L350 62 L390 56" style="fill:none;stroke:var(--water);stroke-width:2.2"/><circle cx="310" cy="104" r="6" style="fill:var(--dye)"/><circle cx="390" cy="56" r="4.5" style="fill:var(--water)"/><text class="tx" x="120" y="130">Aug 26 · 0.14 mg/L is 2.9 SD below this location’s mean</text></svg></div><figcaption class="cap"><span><b>Fig. 5</b> Flagged observation</span><span>Screen, not a verdict</span></figcaption></figure></div>
-
- <div class="plate"><div class="txt"><div class="kick">Technical reports</div><h3>Drafts that wait for a specialist</h3><p>Tables, charts and counts fill from the data. Findings and recommendations are written by you. Limitations such as missing observations are listed automatically.</p></div>
-  <figure class="fig" style="margin:0"><div class="ruler"></div><div class="in doc"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><span class="mono mu" style="font-size:11px">Water Quality Assessment</span><span class="draft">DRAFT · NOT REVIEWED</span></div><h4>Riverbend Distribution, Jun to Nov 2026</h4><div class="ln" style="width:92%"></div><div class="ln" style="width:76%"></div><div class="row" style="margin-top:8px"><span class="m">SP-12 · Free chlorine</span><span class="m">n 6/6 · mean 0.34 mg/L</span></div><div class="row"><span class="m">SP-09 · Free chlorine</span><span class="m">n 6/6 · mean 0.41 mg/L</span></div></div><figcaption class="cap"><span><b>Fig. 6</b> Report preview</span><span>Simulated</span></figcaption></figure></div>
-</div></section>
-
-<section class="integrity" id="integrity"><div class="wrap">
- <div class="sh"><div class="kick"><b>03</b> Scientific integrity</div><h2>Built to support specialist judgment, not <em>replace</em> it</h2><p>Water quality decisions affect public health. AquaTrace organizes the evidence and leaves conclusions with qualified people.</p></div>
- <div class="two">
-  <div class="col"><h3>AquaTrace records</h3><ul>
-   <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Location, date, laboratory, method and unit for every value</li>
-   <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Source results, with corrections kept separate</li>
-   <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>The reason behind each flagged value, with its numbers</li>
-   <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Measured results, estimates, missing data and suggestions, kept apart</li>
-   <li><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>A named reviewer before any report is approved</li></ul></div>
-  <div class="col no"><h3>Reserved for specialists</h3><ul>
-   <li><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Declaring regulatory compliance or legal conclusions</li>
-   <li><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Setting risk thresholds or scoring weights</li>
-   <li><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Prescribing disinfection or treatment changes</li>
-   <li><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Diagnosing public health risk from a single result</li>
-   <li><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Inventing citations or measurements</li></ul></div>
- </div></div></section>
-
-<section id="users"><div class="wrap">
- <div class="sh"><div class="kick"><b>04</b> Users</div><h2>Made for the people who <em>sign</em> the report</h2></div>
- <div class="roles">
-  <div class="role"><h3>Water quality consultants</h3><p>Run several client engagements with consistent records and reports.</p></div>
-  <div class="role"><h3>Utility managers</h3><p>See which programs are overdue and which results await review.</p></div>
-  <div class="role"><h3>Microbiologists and labs</h3><p>Submit results with methods, reporting limits and custody trails.</p></div>
-  <div class="role"><h3>Distribution engineers</h3><p>Relate results to zones, storage, pressure and water age.</p></div>
- </div></div></section>
-
-<section style="padding-top:0"><div class="wrap"><div class="final"><div><div class="kick" style="margin-bottom:10px">Prepared for Mark LeChevallier</div><h2>Walk through a sample assessment.</h2></div><div style="display:grid;gap:10px;justify-items:start"><a class="btn pri" href="https://claude.ai/artifact/9MGWdd1LtJLuEFvf4tne8m" target="_blank" rel="noopener">Open the interactive prototype →</a><span class="mono mu" style="font-size:12px">Use “Explore AquaTrace” inside for a guided tour.</span></div></div></div></section>
-</main>
-<footer><div class="wrap"><span>Concept prototype prepared for Mark LeChevallier. All data shown is simulated. Not a system requested or used by Dr. Water Consulting.</span><span>Not for operational, regulatory or public-health use.</span></div></footer>
+<div class="app" id="app"></div>
+<div id="overlay"></div>
 
 <script>
-(function(){
- var c=document.getElementById('trace'),x=c.getContext('2d'),W=0,H=0,rm=matchMedia('(prefers-reduced-motion:reduce)').matches,col={},bg=null,t0=performance.now();
- var N=[[.07,.8],[.2,.78],[.3,.56],[.46,.52],[.62,.34],[.84,.2],[.14,.28],[.46,.86],[.7,.62],[.9,.7],[.34,.2],[.58,.14]];
- var E=[[0,1],[1,2],[2,3],[3,4],[4,5],[2,6],[1,7],[3,8],[8,9],[2,10],[4,11],[10,11]];
- var SEL=9,D=[];
- function colors(){var s=getComputedStyle(document.documentElement);['--water','--dye','--ink','--paper','--card'].forEach(function(k){col[k]=s.getPropertyValue(k).trim()})}
- function size(){var r=c.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);c.width=r.width*d;c.height=r.height*d;x.setTransform(d,0,0,d,0,0);W=r.width;H=r.height;colors();bg=null}
- function P(i){return[N[i][0]*W,N[i][1]*H]}
- function len(a,b){var p=P(a),q=P(b);return Math.hypot(p[0]-q[0],p[1]-q[1])}
- function dist(){D=N.map(function(){return 1e9});D[0]=0;for(var k=0;k<N.length;k++)E.forEach(function(e){var l=len(e[0],e[1]);if(D[e[0]]+l<D[e[1]])D[e[1]]=D[e[0]]+l;if(D[e[1]]+l<D[e[0]])D[e[0]]=D[e[1]]+l})}
- function contours(){bg=document.createElement('canvas');bg.width=c.width;bg.height=c.height;var g=bg.getContext('2d'),d=c.width/W;g.scale(d,d);g.strokeStyle=col['--water'];g.lineWidth=1;
-  [[.12,.82,0],[.82,.2,2.3]].forEach(function(o){for(var i=1;i<=12;i++){g.globalAlpha=.1+.04*(i%4===0);g.beginPath();for(var a=0;a<=90;a++){var th=a/90*6.2832,r=i*W*.045*(1+.16*Math.sin(3*th+o[2]+i*.15)+.09*Math.sin(5*th+o[2]*2));var px=o[0]*W+Math.cos(th)*r*1.15,py=o[1]*H+Math.sin(th)*r*.9;a?g.lineTo(px,py):g.moveTo(px,py)}g.closePath();g.stroke()}});}
- function frame(now){
-  if(!W)return;if(!bg){dist();contours()}
-  var T=11,t=rm?9:((now-t0)/1000)%T,maxD=Math.max.apply(null,D.filter(function(v){return v<1e8})),front=Math.min(t/6.5,1)*maxD*1.02,fade=t<8?1:Math.max(0,1-(t-8)/3);
-  x.clearRect(0,0,W,H);x.drawImage(bg,0,0,W,H);
-  x.lineCap='round';
-  E.forEach(function(e){var a=D[e[0]]<=D[e[1]]?e[0]:e[1],b=a===e[0]?e[1]:e[0],p=P(a),q=P(b),L=len(a,b);
-   x.globalAlpha=.5;x.strokeStyle=col['--water'];x.lineWidth=2.6;x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(q[0],q[1]);x.stroke();
-   var tr=Math.max(0,Math.min(L,front-D[a]));if(tr>0){var f=tr/L;x.globalAlpha=.95*fade;x.strokeStyle=col['--dye'];x.lineWidth=4;x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f);x.stroke();
-    if(f<1&&fade===1){x.globalAlpha=.35;x.lineWidth=11;x.beginPath();x.moveTo(p[0]+(q[0]-p[0])*Math.max(0,f-.12),p[1]+(q[1]-p[1])*Math.max(0,f-.12));x.lineTo(p[0]+(q[0]-p[0])*f,p[1]+(q[1]-p[1])*f);x.stroke()}}});
-  N.forEach(function(n,i){var p=P(i),hit=front-D[i];
-   if(hit>0){var r=Math.min(30,hit*.28),gr=x.createRadialGradient(p[0],p[1],0,p[0],p[1],r+1);gr.addColorStop(0,col['--dye']);gr.addColorStop(1,'rgba(215,37,79,0)');x.globalAlpha=.3*fade;x.fillStyle=gr;x.beginPath();x.arc(p[0],p[1],r+1,0,6.2832);x.fill()}
-   x.globalAlpha=1;x.fillStyle=i===0?col['--ink']:col['--card'];x.strokeStyle=col['--ink'];x.lineWidth=2;x.beginPath();if(i===0)x.rect(p[0]-8,p[1]-8,16,16);else x.arc(p[0],p[1],i===SEL?8:6,0,6.2832);x.fill();x.stroke();
-   if(i===SEL&&hit>0){x.globalAlpha=Math.max(0,1-Math.min(1,hit/220))*fade;x.strokeStyle=col['--dye'];x.lineWidth=2;x.beginPath();x.arc(p[0],p[1],10+Math.min(hit,220)*.12,0,6.2832);x.stroke()}});
-  x.globalAlpha=1;x.fillStyle=col['--ink'];x.font='500 11px IBM Plex Mono,monospace';var a=P(0),b=P(SEL);x.fillText('WTP-01',a[0]-8,a[1]+28);x.fillText('SP-12',b[0]-18,b[1]+26);
-  if(!rm)requestAnimationFrame(frame)}
- size();requestAnimationFrame(frame);
- addEventListener('resize',function(){size();if(rm)requestAnimationFrame(frame)});
- matchMedia('(prefers-color-scheme:dark)').addEventListener&&matchMedia('(prefers-color-scheme:dark)').addEventListener('change',function(){colors();bg=null});
-})();
+"use strict";
+/* ---------- utilities ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=(v,d=1)=>v==null||isNaN(v)?'—':Number(v).toFixed(d);
+const sum=a=>a.reduce((x,y)=>x+y,0);
+const mean=a=>a.length?sum(a)/a.length:null;
+const sd=a=>{if(a.length<2)return null;const m=mean(a);return Math.sqrt(sum(a.map(x=>(x-m)**2))/(a.length-1))};
+const nn=a=>a.filter(x=>x!=null);
+const IC={overview:'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z',map:'M9 3 3 5v16l6-2 6 2 6-2V3l-6 2zM9 3v16M15 5v16',legionella:'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',lab:'M9 3h6M10 3v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9V3M7 15h10',report:'M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7',menu:'M4 6h16M4 12h16M4 18h16',pin:'M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',clock:'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',check:'M5 12l4 4 10-10',list:'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',eye:'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',tour:'M5 3v18M5 4h12l-2 4 2 4H5',sun:'M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+
+/* ---------- simulated data ---------- */
+const TODAY='2026-11-12';
+const MN=['Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26','Oct 26','Nov 26'];
+const MFULL=['December 2025','January 2026','February 2026','March 2026','April 2026','May 2026','June 2026','July 2026','August 2026','September 2026','October 2026','November 2026'];
+const ZN={A:'North-West',B:'North-East',C:'South-West',D:'South-East'};
+const dateOf=(m,d)=>{const y=m===0?2025:2026,mo=m===0?12:m;return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
+const PARAMS={
+ chl:{name:'Free chlorine residual',unit:'mg/L',dec:2,rl:'0.02',method:'DPD colorimetric',ramp:'cool'},
+ tmp:{name:'Temperature',unit:'°C',dec:1,rl:'0.1',method:'Calibrated thermometer',ramp:'warm'},
+ trb:{name:'Turbidity',unit:'NTU',dec:2,rl:'0.05',method:'Nephelometric',ramp:'cool'},
+ ph:{name:'pH',unit:'pH units',dec:2,rl:'n/a',method:'Electrometric',ramp:'cool'},
+ aoc:{name:'Assimilable organic carbon',unit:'µg/L',dec:0,rl:'5',method:'Growth-based assay',ramp:'cool'}
+};
+const INFRA=[
+ {id:'WTP-01',name:'Riverbend Treatment Plant',type:'Treatment',x:70,y:335},
+ {id:'RES-01',name:'Hillcrest Reservoir',type:'Reservoir',x:190,y:262},
+ {id:'PS-01',name:'Pump Station 1',type:'Pumping',x:200,y:335},
+ {id:'PS-02',name:'Pump Station 2',type:'Pumping',x:420,y:205},
+ {id:'TK-01',name:'North Tank',type:'Storage',x:330,y:100},
+ {id:'TK-02',name:'South-East Tank',type:'Storage',x:600,y:370},
+ {id:'TK-03',name:'Ridge Tank',type:'Storage',x:700,y:110}
+];
+const POINTS=[
+ {id:'SP-01',name:'Plant effluent tap',zone:'C',x:125,y:335,dist:.02,age:2,prs:520,aoc:1,freq:1},
+ {id:'SP-02',name:'Mill Road hydrant',zone:'C',x:240,y:392,dist:.12,age:8,prs:null,freq:1},
+ {id:'SP-03',name:'Hillcrest school',zone:'A',x:200,y:170,dist:.2,age:null,prs:470,freq:1},
+ {id:'SP-04',name:'Cedar Ave main',zone:'A',x:330,y:200,dist:.3,age:18,prs:null,freq:1},
+ {id:'SP-05',name:'North Tank outlet',zone:'A',x:352,y:122,dist:.38,age:26,prs:null,aoc:1,freq:1},
+ {id:'SP-06',name:'Orchard Lane dead end',zone:'A',x:120,y:100,dist:.5,age:40,prs:null,freq:2},
+ {id:'SP-07',name:'Station Street',zone:'B',x:480,y:175,dist:.4,age:null,prs:440,freq:1},
+ {id:'SP-08',name:'Lakeview pump suction',zone:'B',x:560,y:70,dist:.55,age:33,prs:null,freq:1},
+ {id:'SP-09',name:'Ridge Road',zone:'B',x:680,y:178,dist:.75,age:52,prs:null,aoc:1,freq:1},
+ {id:'SP-10',name:'Market Square',zone:'D',x:480,y:332,dist:.35,age:null,prs:455,freq:1},
+ {id:'SP-11',name:'Eastgate junction',zone:'D',x:580,y:300,dist:.6,age:38,prs:null,freq:1},
+ {id:'SP-12',name:'South-East Tank outlet',zone:'D',x:645,y:398,dist:.8,age:61,prs:null,aoc:1,freq:1},
+ {id:'SP-13',name:'Quarry Close dead end',zone:'D',x:735,y:335,dist:.9,age:70,prs:null,freq:2},
+ {id:'SP-14',name:'Mill Farm service line',zone:'D',x:740,y:262,dist:.7,age:null,prs:null,freq:2}
+];
+const P={};POINTS.forEach(p=>P[p.id]=p);
+const NODE={};INFRA.concat(POINTS).forEach(n=>NODE[n.id]=n);
+const PIPES=[['WTP-01','SP-01','m'],['SP-01','PS-01','m'],['PS-01','SP-02','s'],['PS-01','RES-01','m'],['RES-01','SP-03','m'],['SP-03','SP-04','m'],['SP-04','TK-01','s'],['TK-01','SP-05','s'],['SP-03','SP-06','s'],['SP-04','PS-02','m'],['PS-02','SP-07','m'],['SP-07','SP-08','s'],['SP-08','TK-03','s'],['TK-03','SP-09','s'],['PS-01','SP-10','m'],['SP-10','SP-11','m'],['SP-11','TK-02','s'],['TK-02','SP-12','s'],['SP-11','SP-14','s'],['SP-14','SP-13','s'],['SP-07','SP-10','s']];
+const M={};
+POINTS.forEach((p,pi)=>{const r=rng(100+pi*7);const o={chl:[],tmp:[],trb:[],ph:[],aoc:[],prs:[]};
+ for(let m=0;m<12;m++){
+  const t=15+8*Math.sin((m-4.5)/12*2*Math.PI)+p.dist*1.6+(r()-.5)*.8;
+  const c=1.15-p.dist*.62-(t-15)*.018+(r()-.5)*.08;
+  o.tmp.push(+t.toFixed(1));o.chl.push(+Math.max(.05,c).toFixed(2));
+  o.trb.push(+(.11+p.dist*.09+(r()-.5)*.04).toFixed(2));o.ph.push(+(7.65-p.dist*.18+(r()-.5)*.1).toFixed(2));
+  o.aoc.push(p.aoc&&m%3===2?Math.round(60+p.dist*90+r()*20):null);o.prs.push(p.prs?Math.round(p.prs+(r()-.5)*24):null);}
+ M[p.id]=o;});
+M['SP-09'].chl[8]=.14;M['SP-12'].trb[6]=.61;M['SP-07'].chl[5]=null;M['SP-03'].trb[10]=null;M['SP-13'].ph[9]=null;
+const sampledIn=(p,m)=>p.freq===1||(m%2===0);
+
+const LABS=['Riverbend Reference Lab (sim.)','Northgate Analytical (sim.)'];
+const LEGPTS=['SP-02','SP-04','SP-05','SP-07','SP-09','SP-11','SP-12','SP-13'];
+const LEG=[];{const r=rng(7);let n=1;
+ for(let m=0;m<12;m++)LEGPTS.forEach((id,i)=>{if((m+i)%2===0||m>=10){
+  const p=P[id],prob=.05+p.dist*.35+(M[id].tmp[m]>20?.12:0),det=r()<prob,q=i%3===0;
+  let res=det?'Detected':'Not detected',status='Verified';
+  if(m===10&&i%4===1)status='Awaiting review';
+  if(m===11){if(i%2===0)status='Awaiting review';else{status='Pending lab';res='Pending'}}
+  LEG.push({id:`LEG-26-${String(n++).padStart(4,'0')}`,loc:id,date:dateOf(m,5+i),m,lab:LABS[i%2],method:q?'qPCR':'Culture (ISO 11731)',org:'Legionella spp.',res,val:res==='Detected'?[100,200,400,1000][Math.floor(r()*4)]:null,unit:q?'GU/L':'CFU/L',status});}});}
+const LR=[];{let k=1;
+ for(let m=9;m<12;m++)POINTS.forEach((p,pi)=>['chl','tmp','trb','ph'].forEach(pk=>{
+  const day=1+(pi%11),pend=m===11&&(pi%4===0),v=pend?null:M[p.id][pk][m];
+  let st=pend?'Pending':'Verified';if(!pend&&(m===11||(m===10&&pi%5===0)))st='Awaiting review';
+  if(v==null&&!pend)st='Pending';
+  LR.push({id:`LR-${String(k++).padStart(4,'0')}`,sampleId:`S-${dateOf(m,day).replace(/-/g,'')}-${p.id.slice(3)}`,loc:p.id,date:dateOf(m,day),m,lab:LABS[pi%2],method:PARAMS[pk].method,pk,val:v,unit:PARAMS[pk].unit,rl:PARAMS[pk].rl,status:st,src:'seed'});}));
+ LR[5].unit='';LR[23].sampleId='S-26??-X';LR[40].loc='SP-99';LR[57].date='';LR[70].lab='';
+ LR.push(Object.assign({},LR[12],{id:'LR-0169'}));}
+const qc=r=>{const q=[];if(!r.unit)q.push('Missing unit');if(!/^S-\d{8}-\d{2}$/.test(r.sampleId))q.push('Invalid sample ID');if(!P[r.loc])q.push('Unmatched location');if(!r.date)q.push('Missing collection date');if(!r.lab)q.push('Incomplete laboratory metadata');
+ if(LR.filter(x=>x.sampleId===r.sampleId&&x.pk===r.pk&&x.loc===r.loc).length>1)q.push('Possible duplicate');return q};
+const PRG=[
+ {id:'PRG-01',name:'Drinking Water Monitoring',sys:'Riverbend Distribution',locs:14,freq:'Monthly',last:'2026-11-03',next:'2026-12-01',own:'R. Okafor'},
+ {id:'PRG-02',name:'Distribution System Monitoring',sys:'Riverbend Distribution',locs:10,freq:'Weekly',last:'2026-11-05',next:'2026-11-12',own:'L. Tanaka'},
+ {id:'PRG-03',name:'Legionella Monitoring',sys:'Riverbend Distribution',locs:8,freq:'Every 2 months',last:'2026-11-06',next:'2026-11-19',own:'M. Alvarez'},
+ {id:'PRG-04',name:'Storage Tank Monitoring',sys:'Riverbend Distribution',locs:3,freq:'Monthly',last:'2026-10-08',next:'2026-11-09',own:'L. Tanaka'},
+ {id:'PRG-05',name:'Reclaimed Water Monitoring',sys:'Eastfield Reuse Network',locs:2,freq:'Quarterly',last:'2026-09-22',next:'2026-12-22',own:'R. Okafor'}];
+const prgStatus=p=>p.next<TODAY?['Overdue','crit']:p.next===TODAY?['Due today','warn']:p.next<='2026-11-19'?['Due soon','info']:['On schedule','ok'];
+
+/* ---------- state ---------- */
+const S={screen:'overview',side:true,anim:true,ov:{param:'chl'},
+ map:{layer:'chl',m:11,cmp:8,sel:'SP-12',zone:'all',type:'all',v:{x:0,y:0,k:1}},
+ leg:{res:'all',sel:'SP-12',assess:'',reviewer:''},inv:[{id:'INV-001',title:'Declining chlorine residual, Ridge Road',loc:'SP-09',reviewer:'M. Alvarez',findings:'Residual in August fell below the location’s own series by more than the configured screen. Cause not established.',follow:'Repeat sampling; review flushing records.',status:'Open'}],
+ lab:{tab:'results',q:'',param:'all',loc:'all',status:'all',issues:false,page:0,sel:null,reviewer:'',corr:'',reason:'',imp:0,impFile:'',impOk:false},
+ audit:{},corrs:{},
+ an:{param:'chl',a:'SP-04',b:'SP-12',k:2},
+ rep:{step:1,type:'Water Quality Assessment',client:'Riverbend Water Authority (fictional)',sys:'Riverbend Distribution',from:6,to:11,locs:['SP-04','SP-09','SP-12'],params:{chl:true,tmp:true,trb:false,ph:false,aoc:true},leg:true,findings:'',refs:'',reviewer:'',approved:false,csv:''},
+ modal:null,tour:-1,start:0,ack:false};
+const setPath=(o,p,v)=>{const a=p.split('.');while(a.length>1)o=o[a.shift()];o[a[0]]=v};
+
+/* ---------- chart helpers ---------- */
+function ticks(lo,hi,n=5){const s=(hi-lo)/n,mag=Math.pow(10,Math.floor(Math.log10(s)));const st=[1,2,2.5,5,10].map(x=>x*mag).find(x=>x>=s)||s;const a=Math.floor(lo/st)*st,t=[];for(let v=a;v<=hi+st*.001;v+=st)t.push(+v.toFixed(6));return t}
+function lineChart({labels,series,h=230,dec=1,unit='',yMin,yMax}){
+ const w=640,m={l:46,r:14,t:12,b:26},all=[];series.forEach(s=>['v','lo','hi'].forEach(k=>(s[k]||[]).forEach(x=>x!=null&&all.push(x))));
+ if(!all.length)return '<div class="muted">No data in selected range.</div>';
+ let lo=yMin!=null?yMin:Math.min(...all),hi=yMax!=null?yMax:Math.max(...all);if(lo===hi){lo-=1;hi+=1}
+ const pad=(hi-lo)*.1;if(yMin==null)lo-=pad;if(yMax==null)hi+=pad;
+ const X=i=>m.l+(labels.length>1?i*(w-m.l-m.r)/(labels.length-1):0),Y=v=>m.t+(1-(v-lo)/(hi-lo))*(h-m.t-m.b);
+ let g='';ticks(lo,hi,4).forEach(t=>{if(t<lo-1e-9||t>hi+1e-9)return;g+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(t)}" y2="${Y(t)}"/><text class="ax" x="${m.l-6}" y="${Y(t)+4}" text-anchor="end">${f(t,dec)}</text>`});
+ const step=labels.length>8?2:1;labels.forEach((l,i)=>{if(i%step===0)g+=`<text class="ax" x="${X(i)}" y="${h-8}" text-anchor="middle">${l}</text>`});
+ series.forEach((s,si)=>{const col=s.color||`var(--c${si+1})`;
+  if(s.lo){let pts=[],segs=[];s.lo.forEach((l,i)=>{if(l!=null&&s.hi[i]!=null)pts.push(i);else{if(pts.length>1)segs.push(pts);pts=[]}});if(pts.length>1)segs.push(pts);
+   segs.forEach(sg=>{g+=`<polygon points="${sg.map(i=>`${X(i)},${Y(s.hi[i])}`).concat(sg.slice().reverse().map(i=>`${X(i)},${Y(s.lo[i])}`)).join(' ')}" style="fill:${col};fill-opacity:.13"/>`})}
+  let d='',pen=false;s.v.forEach((v,i)=>{if(v==null){pen=false;return}d+=`${pen?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`;pen=true});
+  g+=`<path d="${d}" style="fill:none;stroke:${col};stroke-width:2;stroke-linejoin:round"/>`;
+  s.v.forEach((v,i)=>{if(v!=null)g+=`<circle cx="${X(i)}" cy="${Y(v)}" r="${s.flags&&s.flags[i]?5:2.5}" style="fill:${s.flags&&s.flags[i]?'var(--crit)':col}"><title>${s.name} · ${labels[i]}: ${f(v,dec)} ${unit}${s.flags&&s.flags[i]?' (flagged)':''}</title></circle>`});
+  const li=s.v.map((v,i)=>v!=null?i:-1).filter(i=>i>=0).pop();if(li!=null&&li>=0)g+=`<circle cx="${X(li)}" cy="${Y(s.v[li])}" r="5" style="fill:${col};stroke:var(--surface);stroke-width:2"/>`;});
+ return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Line chart">${g}</svg>`}
+function barChart({labels,vals,h=200,dec=0,color='var(--c1)',colors}){
+ const w=640,m={l:34,r:10,t:18,b:28},mx=Math.max(1,...nn(vals)),bw=(w-m.l-m.r)/labels.length;let g='';
+ ticks(0,mx,4).forEach(t=>{const y=m.t+(1-t/mx)*(h-m.t-m.b);if(t>mx*1.001)return;g+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${y}" y2="${y}"/><text class="ax" x="${m.l-5}" y="${y+4}" text-anchor="end">${f(t,dec)}</text>`});
+ labels.forEach((l,i)=>{const v=vals[i];const bh=v==null?0:(v/mx)*(h-m.t-m.b),x=m.l+i*bw+bw*.18;
+  g+=`<rect x="${x}" y="${h-m.b-bh}" width="${bw*.64}" height="${bh}" rx="2" style="fill:${colors?colors[i]:color}"><title>${l}: ${f(v,dec)}</title></rect>`;
+  if(v!=null&&labels.length<=14)g+=`<text class="tx" x="${x+bw*.32}" y="${h-m.b-bh-4}" text-anchor="middle">${f(v,dec)}</text>`;
+  if(labels.length<=14||i%2===0)g+=`<text class="ax" x="${x+bw*.32}" y="${h-10}" text-anchor="middle">${l}</text>`});
+ return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Bar chart">${g}</svg>`}
+function spark(vals,col='var(--c1)'){const v=nn(vals),lo=Math.min(...v),hi=Math.max(...v),w=120,h=30;const X=i=>i*(w-6)/(vals.length-1)+3,Y=x=>h-4-((x-lo)/((hi-lo)||1))*(h-8);
+ let d='',pen=false;vals.forEach((x,i)=>{if(x==null){pen=false;return}d+=`${pen?'L':'M'}${X(i).toFixed(1)} ${Y(x).toFixed(1)}`;pen=true});const li=vals.length-1;
+ return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${X(li)} ${h} L3 ${h}Z" style="fill:${col};fill-opacity:.12;stroke:none"/><path d="${d}" style="fill:none;stroke:${col};stroke-width:1.6"/><circle cx="${X(li)}" cy="${Y(vals[li]??lo)}" r="2.6" style="fill:${col}"/></svg>`}
+const badge=(t,k)=>`<span class="badge b-${k}">${esc(t)}</span>`;
+const stK=s=>({'Verified':'ok','Awaiting review':'warn','Pending':'neu','Pending lab':'neu','Detected':'warn','Not detected':'ok','Open':'warn','Reviewed':'ok'}[s]||'neu');
+const ptName=id=>P[id]?`${id} · ${P[id].name}`:id;
+const seriesOf=(id,pk)=>M[id]?M[id][pk]:[];
+function netStats(pk){return MN.map((_,m)=>{const v=nn(POINTS.map(p=>M[p.id][pk][m]));return {mean:mean(v),lo:v.length?Math.min(...v):null,hi:v.length?Math.max(...v):null}})}
+
+/* ---------- screens ---------- */
+const RINGS=(()=>{let s='';[[640,70,0],[250,170,2.3]].forEach(([cx,cy,sd])=>{for(let i=1;i<=10;i++){const r0=i*13;let d='';for(let a=0;a<=72;a++){const t=a/72*Math.PI*2,r=r0*(1+.17*Math.sin(3*t+sd+i*.2)+.09*Math.sin(5*t+sd*2));d+=(a?'L':'M')+(cx+Math.cos(t)*r*1.5).toFixed(1)+' '+(cy+Math.sin(t)*r).toFixed(1)}s+=`<path d="${d}Z"/>`}});return `<svg class="rings" viewBox="0 0 800 220" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g style="fill:none;stroke:#ff6b8d;stroke-width:1;stroke-opacity:.32">${s}</g></svg>`})();
+const SCREENS=[['overview','Overview'],['map','Distribution Map'],['legionella','Legionella'],['lab','Lab & Analytics'],['report','Reports']];
+function shell(){
+ return `<aside class="side"><div class="brand"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2s8 8.5 8 14a8 8 0 0 1-16 0c0-5.5 8-14 8-14z" fill="#ff6b8d"/><circle cx="13" cy="16" r="3" fill="#0a1f33"/></svg><span>AquaTrace</span></div>
+ ${SCREENS.map(([k,l])=>`<button class="nav" data-act="nav" data-v="${k}" ${S.screen===k?'aria-current="page"':''}>${ic(k)}<span class="lbl">${l}</span></button>`).join('')}
+ <button class="nav" id="toggleSide" data-act="side" style="margin-top:8px">${ic('menu')}<span class="lbl">Collapse</span></button>
+ <button class="nav" data-act="startShow">${ic('eye')}<span class="lbl">Welcome screen</span></button>
+ <div class="sidefoot">Prototype with simulated data. Not for operational or regulatory use.</div></aside>
+ <div class="main"><div class="top"><div class="grow"><strong style="font-family:var(--head)">Riverbend Water Authority</strong> <span class="muted">· fictional utility · Riverbend Distribution</span></div><span class="demo">Simulated demo data</span><span class="who"><i>ML</i>Mark LeChevallier</span>
+ <button class="btn pri" data-act="tour" data-v="0">${ic('tour')}Explore AquaTrace</button></div><div id="screen" class="screen"></div></div>`}
+
+function ovKPIs(){
+ const due=PRG.filter(p=>p.next<='2026-11-19').length,pend=LR.filter(r=>r.status==='Pending').length+LEG.filter(l=>l.status==='Pending lab').length;
+ const coll=new Set(LR.filter(r=>r.m>=9&&r.val!=null).map(r=>r.sampleId)).size+LEG.filter(l=>l.m>=9&&l.res!=='Pending').length;
+ const rev=LR.filter(r=>r.status==='Awaiting review').length+LEG.filter(l=>l.status==='Awaiting review').length+S.inv.filter(i=>i.status==='Open').length;
+ const r=rng(5),sp=(b,s)=>Array.from({length:8},(_,i)=>b+Math.round((r()-.4)*s+i*.3));
+ return [
+  {l:'Active monitoring programs',v:PRG.length,prev:5,s:sp(4,1),go:'lab',i:'list'},{l:'Sampling locations',v:POINTS.length,prev:14,s:sp(13,1),go:'map',i:'pin'},
+  {l:'Samples collected (3 mo.)',v:coll,prev:coll-9,s:sp(coll-12,8),go:'lab',i:'lab'},{l:'Lab results pending',v:pend,prev:pend+4,s:sp(pend,6),go:'lab',i:'clock'},
+  {l:'Monitoring activities due',v:due,prev:2,s:sp(2,2),go:'overview',i:'check'},{l:'Open technical reviews',v:rev,prev:rev-6,s:sp(rev-5,7),go:'legionella',i:'eye'}]}
+function vOverview(){
+ const K=ovKPIs(),pk=S.ov.param,ns=netStats(pk),P_=PARAMS[pk];
+ const lowSamples=POINTS.reduce((a,p)=>a+M[p.id].chl.filter(x=>x==null).length,0);
+ const qcN=LR.filter(r=>qc(r).length).length,aw=LR.filter(r=>r.status==='Awaiting review').length+LEG.filter(l=>l.status==='Awaiting review').length;
+ const overdue=PRG.filter(p=>prgStatus(p)[0]==='Overdue');
+ const lc=LEG.filter(l=>l.m>=9);const det=lc.filter(l=>l.res==='Detected').length;
+ const act=[['Lab upload','Northgate Analytical (sim.) submitted 12 records','2 h ago'],['Sample','LEG-26-0'+(LEG.length-2)+' received at Riverbend Reference Lab (sim.)','Yesterday'],['Technical review','INV-001 assigned to M. Alvarez','3 days ago'],['Monitoring update','PRG-04 collection marked overdue','3 days ago'],['Document','Sampling SOP v3 (demo) revised','6 days ago']];
+ return `<div class="banner">${RINGS}<div><div class="mono" style="color:#ff8fa8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Water quality command center</div><h1>Riverbend Distribution</h1><p>Monitoring programs, results and open reviews in one place. Figures come from the simulated demo dataset.</p></div>
+ <div class="stat"><div><b>${POINTS.length}</b>sampling points</div><div><b>${LR.length+LEG.length}</b>records on file</div><div><b>${overdue.length}</b>overdue programs</div></div></div>
+ <div class="filters"><label class="f">Program<select data-path="ov.prog"><option>All programs</option>${PRG.map(p=>`<option>${p.name}</option>`).join('')}</select></label><label class="f">Reporting period<select data-path="ov.per"><option>Last 3 months</option><option>Last 12 months</option></select></label></div>
+ <div class="grid kpis">${K.map(k=>{const d=k.v-k.prev;return `<button class="card kpi" data-act="nav" data-v="${k.go}"><span class="chipic">${ic(k.i)}</span><span class="lab">${k.l}</span><span class="num count" data-v="${k.v}">${S.anim?0:k.v}</span><span class="tr"><span class="${d>=0?'up':'dn'}">${d>=0?'▲':'▼'} ${Math.abs(d)}</span> vs previous period</span>${spark(k.s)}</button>`}).join('')}</div>
+ <div class="grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+ <div class="card"><h2>Water quality overview <span class="chips">${Object.keys(PARAMS).map(k=>`<button class="chip" data-act="set" data-path="ov.param" data-val="${k}" aria-pressed="${pk===k}">${PARAMS[k].name.replace('Assimilable organic carbon','AOC').replace('Free chlorine residual','Free chlorine')}</button>`).join('')}</span></h2>
+ ${lineChart({labels:MN,series:[{name:'Network mean',v:ns.map(x=>x.mean),lo:ns.map(x=>x.lo),hi:ns.map(x=>x.hi)}],dec:P_.dec,unit:P_.unit})}
+ <div class="legend"><span><i class="sw" style="background:var(--c1)"></i>Mean of measured locations (${P_.unit})</span><span>Band: min–max across locations</span><span>Source: simulated sample data · ${P_.method}</span></div></div>
+ <div class="card"><h2>Attention required</h2><ul class="list">
+ <li><span>Overdue sampling activities</span>${badge(overdue.length?overdue.map(p=>p.id).join(', '):'None',overdue.length?'crit':'ok')}</li>
+ <li><span>Results awaiting review</span>${badge(aw+' records','warn')}</li>
+ <li><span>Records with metadata or data quality issues</span>${badge(qcN+' records',qcN?'crit':'ok')}</li>
+ <li><span>Missing chlorine observations</span>${badge(lowSamples+' gaps',lowSamples?'warn':'ok')}</li>
+ <li><span>Technical reports awaiting approval</span>${badge(S.rep.approved?'0':'1 draft','info')}</li></ul>
+ <div class="chips" style="margin-top:10px"><button class="btn sm" data-act="nav" data-v="lab">Open lab records</button></div></div></div>
+ <div class="grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+ <div class="card"><h2>Monitoring programs</h2><div class="tw"><table><thead><tr><th>Program</th><th>System</th><th class="num-r">Locations</th><th>Frequency</th><th>Last</th><th>Next</th><th>Status</th></tr></thead><tbody>
+ ${PRG.map(p=>{const s=prgStatus(p);return `<tr><td><strong>${p.name}</strong><div class="muted mono">${p.id} · ${p.own}</div></td><td>${p.sys}</td><td class="num-r">${p.locs}</td><td>${p.freq}</td><td class="mono">${p.last}</td><td class="mono">${p.next}</td><td>${badge(s[0],s[1])}</td></tr>`}).join('')}</tbody></table></div></div>
+ <div class="grid" style="align-content:start">
+ <div class="card"><h2>Legionella monitoring <button class="btn sm" data-act="nav" data-v="legionella">Open</button></h2>
+ <dl class="kv"><dt>Samples, last 3 months</dt><dd>${lc.length}</dd><dt>Detections recorded</dt><dd>${det}</dd><dt>Awaiting evaluation</dt><dd>${LEG.filter(l=>l.status==='Awaiting review').length}</dd><dt>Pending at laboratory</dt><dd>${LEG.filter(l=>l.status==='Pending lab').length}</dd><dt>Open technical investigations</dt><dd>${S.inv.filter(i=>i.status==='Open').length}</dd></dl>
+ <div class="bar" style="margin-top:10px"><i style="width:${Math.round(lc.filter(l=>l.res!=='Pending').length/lc.length*100)}%"></i></div><div class="muted" style="font-size:12px;margin-top:4px">Collection with result received: ${Math.round(lc.filter(l=>l.res!=='Pending').length/lc.length*100)}%</div></div>
+ <div class="card"><h2>Recent activity</h2><ul class="list">${act.map(a=>`<li><span><strong>${a[0]}</strong><div class="muted">${a[1]}</div></span><span class="muted" style="white-space:nowrap">${a[2]}</span></li>`).join('')}</ul></div></div></div>`}
+
+/* map */
+const ramp=(t,kind)=>kind==='warm'?`hsl(${215-185*t},68%,${52-4*t}%)`:`hsl(205,${55+15*t}%,${88-56*t}%)`;
+function layerInfo(L){return {chl:{pk:'chl',n:'Disinfectant residual'},tmp:{pk:'tmp',n:'Temperature'},prs:{pk:'prs',n:'Pressure',unit:'kPa',dec:0},cov:{n:'Sampling coverage'},age:{n:'Water age',unit:'h',dec:0},mic:{n:'Microbiological status'}}[L]}
+function ptVal(p,L,m){if(L==='age')return p.age;if(L==='prs')return M[p.id].prs[m];return M[p.id][L][m]}
+function ptColor(p,L,m){
+ if(L==='cov')return sampledIn(p,m)?'var(--ok)':'var(--line)';
+ if(L==='mic'){const rs=LEG.filter(l=>l.loc===p.id&&l.m<=m&&l.res!=='Pending').sort((a,b)=>a.m-b.m).pop();return !rs?'var(--line)':rs.res==='Detected'?'var(--warn)':'var(--ok)'}
+ const v=ptVal(p,L,m);if(v==null)return 'var(--line)';
+ const all=nn(POINTS.map(q=>ptVal(q,L,m)));const lo=Math.min(...all),hi=Math.max(...all);return ramp((v-lo)/((hi-lo)||1),L==='tmp'?'warm':'cool')}
+function vMap(){
+ const L=S.map.layer,m=S.map.m,I=layerInfo(L),sel=S.map.sel;
+ const vis=n=>(S.map.zone==='all'||!n.zone||n.zone===S.map.zone)&&(S.map.type==='all'||(S.map.type==='sampling'?!!n.zone&&!!P[n.id]:!P[n.id]));
+ const zc={A:'#7fb9d8',B:'#9fd3c3',C:'#a9c0e6',D:'#e5cf9a'};
+ const zones=[['A',30,30,380,200],['B',410,30,380,200],['C',30,230,380,210],['D',410,230,380,210]].map(([z,x,y,w,h])=>`<rect class="zone" x="${x}" y="${y}" width="${w}" height="${h}" style="fill:${zc[z]};opacity:${S.map.zone==='all'||S.map.zone===z?.35:.1}"/><text class="ax" x="${x+10}" y="${y+18}" style="font-weight:600">Zone ${z} · ${ZN[z]}</text>`).join('');
+ const pipes=PIPES.map(([a,b,t])=>`<line x1="${NODE[a].x}" y1="${NODE[a].y}" x2="${NODE[b].x}" y2="${NODE[b].y}" style="stroke:var(--info);stroke-width:${t==='m'?3.5:1.8};stroke-opacity:.55;stroke-linecap:round"/>`).join('');
+ const shape=n=>{const{x,y}=n,t=n.type;const st='fill:var(--nav);stroke:var(--surface);stroke-width:2';
+  return t==='Treatment'?`<rect x="${x-11}" y="${y-11}" width="22" height="22" rx="3" style="${st}"/>`:t==='Reservoir'?`<circle cx="${x}" cy="${y}" r="12" style="${st}"/>`:t==='Pumping'?`<polygon points="${x},${y-12} ${x+11},${y-6} ${x+11},${y+6} ${x},${y+12} ${x-11},${y+6} ${x-11},${y-6}" style="${st}"/>`:`<polygon points="${x},${y-12} ${x+12},${y+10} ${x-12},${y+10}" style="${st}"/>`};
+ const infra=INFRA.filter(vis).map(n=>`<g class="mk" data-act="pick" data-id="${n.id}"><g>${shape(n)}</g><text class="ax" x="${n.x}" y="${n.y+26}" text-anchor="middle" style="font-weight:600">${n.id}</text><title>${n.name}</title></g>`).join('');
+ const pts=POINTS.filter(vis).map(p=>{const c=ptColor(p,L,m),s=p.id===sel,miss=L==='mic'||L==='cov'?false:ptVal(p,L,m)==null;
+  return `<g class="mk" data-act="pick" data-id="${p.id}">${s?`<circle class="pulse" cx="${p.x}" cy="${p.y}" r="10" style="fill:var(--accent)"/>`:''}<circle cx="${p.x}" cy="${p.y}" r="${s?11:9}" style="fill:${c};stroke:${s?'var(--fg)':'var(--surface)'};stroke-width:${s?3:2}${miss?';stroke-dasharray:3 2':''}"/><text class="ax" x="${p.x}" y="${p.y-14}" text-anchor="middle">${p.id}</text><title>${p.name}${miss?' (no data for this layer)':''}</title></g>`}).join('');
+ let legend;if(L==='cov')legend=`<i class="sw" style="background:var(--ok)"></i>Sampled this month <i class="sw" style="background:var(--line)"></i>Not scheduled`;
+ else if(L==='mic')legend=`<i class="sw" style="background:var(--ok)"></i>Latest: not detected <i class="sw" style="background:var(--warn)"></i>Latest: detected <i class="sw" style="background:var(--line)"></i>No result`;
+ else{const all=nn(POINTS.map(q=>ptVal(q,L,m)));legend=`<div>${I.n}${I.unit?` (${I.unit})`:L==='chl'?' (mg/L)':L==='tmp'?' (°C)':''}</div><div class="ramp" style="background:linear-gradient(90deg,${ramp(0,L==='tmp'?'warm':'cool')},${ramp(1,L==='tmp'?'warm':'cool')})"></div><div style="display:flex;justify-content:space-between"><span>${f(Math.min(...all),L==='chl'?2:L==='age'||L==='prs'?0:1)}</span><span>${f(Math.max(...all),L==='chl'?2:L==='age'||L==='prs'?0:1)}</span></div><div class="muted">Relative scale for this month. Not a regulatory limit. Dashed ring: no data.</div>`}
+ const v=S.map.v;
+ const node=NODE[sel];
+ return `<div class="head"><div><h1>Distribution system explorer</h1><p>Select a sampling point or asset to inspect results, compare dates and open related records. Geography is simulated.</p></div></div>
+ <div class="split"><div><div class="filters"><label class="f">Zone<select data-path="map.zone"><option value="all">All zones</option>${Object.keys(ZN).map(z=>`<option value="${z}" ${S.map.zone===z?'selected':''}>${z} · ${ZN[z]}</option>`).join('')}</select></label>
+ <label class="f">Locations<select data-path="map.type"><option value="all">All</option><option value="sampling" ${S.map.type==='sampling'?'selected':''}>Sampling points</option><option value="infra" ${S.map.type==='infra'?'selected':''}>Infrastructure</option></select></label></div>
+ <div class="chips" style="margin-bottom:10px">${['chl','tmp','prs','cov','age','mic'].map(k=>`<button class="chip" data-act="set" data-path="map.layer" data-val="${k}" aria-pressed="${L===k}">${layerInfo(k).n}</button>`).join('')}</div>
+ <div class="map-wrap"><svg class="map" id="mapsvg" viewBox="0 0 820 460" role="img" aria-label="Simulated distribution network map"><defs><pattern id="gp" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" style="fill:none;stroke:var(--grid);stroke-width:1"/></pattern></defs><rect width="820" height="460" style="fill:var(--surface2)"/><rect width="820" height="460" style="fill:url(#gp)"/><g id="vp" transform="translate(${v.x} ${v.y}) scale(${v.k})">${zones}${pipes}${infra}${pts}</g></svg>
+ <div class="mapctl"><button class="btn" data-act="zoom" data-v="1.3" aria-label="Zoom in">+</button><button class="btn" data-act="zoom" data-v="0.77" aria-label="Zoom out">−</button><button class="btn" data-act="zoom" data-v="0" aria-label="Reset view">⟲</button></div>
+ <div class="maplegend">${legend}</div>
+ <div class="timeline"><strong>${MFULL[m]}</strong><input type="range" id="f-map-m" data-path="map.m" min="0" max="11" value="${m}" aria-label="Monitoring month"><label class="f" style="flex-direction:row;align-items:center">Compare with <select data-path="map.cmp">${MN.map((n,i)=>`<option value="${i}" ${S.map.cmp===i?'selected':''}>${n}</option>`).join('')}</select></label></div></div>
+ <div class="legend"><span>Shapes: square plant · circle reservoir · hexagon pump · triangle tank</span><span>Thick pipe: main · thin pipe: service</span><span>Drag to pan, scroll to zoom</span></div></div>
+ <div>${mapPanel(node)}</div></div>`}
+function mapPanel(n){
+ if(!n)return `<div class="card">Select a location.</div>`;
+ const isP=!!P[n.id],m=S.map.m,c=S.map.cmp;
+ if(!isP)return `<div class="card"><h2>${n.id}</h2><dl class="kv"><dt>Name</dt><dd>${n.name}</dd><dt>Type</dt><dd>${n.type} facility</dd><dt>Connected points</dt><dd>${PIPES.filter(p=>p[0]===n.id||p[1]===n.id).map(p=>p[0]===n.id?p[1]:p[0]).join(', ')}</dd></dl><p class="muted">Operational data for assets is not part of this prototype dataset.</p></div>`;
+ const rows=['chl','tmp','trb','ph','aoc'].map(pk=>{const a=M[n.id][pk][m],b=M[n.id][pk][c],d=a!=null&&b!=null?a-b:null;return `<tr><td>${PARAMS[pk].name.replace('Assimilable organic carbon','AOC').replace('Free chlorine residual','Free chlorine')}</td><td class="num-r">${f(a,PARAMS[pk].dec)}</td><td class="num-r">${f(b,PARAMS[pk].dec)}</td><td class="num-r">${d==null?'—':(d>0?'+':'')+d.toFixed(PARAMS[pk].dec)}</td><td class="muted">${PARAMS[pk].unit}</td></tr>`}).join('');
+ const lr=LR.filter(r=>r.loc===n.id).length,leg=LEG.filter(l=>l.loc===n.id);const last=leg.filter(l=>l.res!=='Pending').pop();
+ return `<div class="card"><h2>${n.id} · ${n.name}</h2><dl class="kv"><dt>Zone</dt><dd>${n.zone} · ${ZN[n.zone]}</dd><dt>Water age</dt><dd>${n.age!=null?n.age+' h (modelled)':'Not available for this location'}</dd><dt>Pressure</dt><dd>${M[n.id].prs[m]!=null?M[n.id].prs[m]+' kPa':'No pressure logger'}</dd><dt>Schedule</dt><dd>${n.freq===1?'Monthly':'Every 2 months'} · ${LEGPTS.includes(n.id)?'Legionella program':'Core program'}</dd><dt>Latest Legionella</dt><dd>${last?`${last.res} (${last.date})`:'Not in program'}</dd></dl>
+ <h3 style="margin:14px 0 6px">${MN[m]} vs ${MN[c]}</h3><div class="tw"><table><thead><tr><th>Parameter</th><th class="num-r">${MN[m]}</th><th class="num-r">${MN[c]}</th><th class="num-r">Δ</th><th>Unit</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <h3 style="margin:14px 0 6px">Free chlorine history (mg/L)</h3>${lineChart({labels:MN,series:[{name:n.id,v:M[n.id].chl}],h:150,dec:2})}
+ <h3 style="margin:14px 0 6px">Related</h3><ul class="list"><li><span>Laboratory records</span><button class="btn sm" data-act="goLab" data-id="${n.id}">${lr} records</button></li><li><span>Compare with another location</span><button class="btn sm" data-act="goCmp" data-id="${n.id}">Compare</button></li><li><span>Technical documents</span><span class="muted">Sampling SOP v3 (demo)</span></li></ul>
+ <button class="btn pri" style="margin-top:10px;width:100%;justify-content:center" data-act="goRep" data-id="${n.id}">Start assessment report</button></div>`}
+
+/* legionella */
+function vLeg(){
+ const rows=LEG.filter(l=>S.leg.res==='all'||l.res===S.leg.res||l.status===S.leg.res).slice().reverse();
+ const det=LEG.filter(l=>l.res==='Detected'),done=LEG.filter(l=>l.res!=='Pending');
+ const byM=MN.map((_,m)=>LEG.filter(l=>l.m===m&&l.res!=='Pending'));
+ const byL=LEGPTS.map(id=>{const a=LEG.filter(l=>l.loc===id&&l.res!=='Pending');return a.length?a.filter(l=>l.res==='Detected').length/a.length*100:0});
+ const cov=LEGPTS.map(id=>LEG.filter(l=>l.loc===id).length);
+ const sel=S.leg.sel,p=P[sel],ls=LEG.filter(l=>l.loc===sel&&l.res!=='Pending');
+ return `<div class="head"><div><h1>Legionella monitoring and risk management</h1><p>Organize monitoring programs, review microbiological data and document technical findings. No universal thresholds are applied. Conclusions require review by a qualified specialist.</p></div><button class="btn pri" data-act="invNew">New investigation</button></div>
+ <div class="grid kpis">${[['Active Legionella programs',1],['Sampling locations',LEGPTS.length],['Samples collected',LEG.length],['Results awaiting review',LEG.filter(l=>l.status==='Awaiting review').length],['Open investigations',S.inv.filter(i=>i.status==='Open').length]].map(k=>`<div class="card kpi" style="cursor:default"><span class="lab">${k[0]}</span><span class="num">${k[1]}</span></div>`).join('')}</div>
+ <div class="grid cols2" style="margin-top:14px">
+ <div class="card"><h2>Monitoring program</h2><div class="tw"><table><thead><tr><th>ID</th><th>Objective</th><th>Locations</th><th>Frequency</th><th>Methods</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr><td class="mono">PRG-03</td><td>Distribution and storage-tank monitoring</td><td>${LEGPTS.length}</td><td>Every 2 months</td><td>Culture (ISO 11731), qPCR</td><td>M. Alvarez</td><td>${badge('Active','ok')}</td></tr></tbody></table></div>
+ <div class="note" style="margin-top:10px">Methods and criteria are configurable by the program owner. Values shown are simulated.</div></div>
+ <div class="card"><h2>Technical investigations</h2><ul class="list">${S.inv.map(i=>`<li><span><strong>${esc(i.title)}</strong><div class="muted">${i.id} · ${i.loc} · Reviewer ${esc(i.reviewer)}</div><div style="margin-top:4px">${esc(i.findings)}</div>${i.follow?`<div class="muted">Follow-up: ${esc(i.follow)}</div>`:''}</span><span style="display:grid;gap:6px;justify-items:end">${badge(i.status==='Open'?'Open — awaiting reviewer':'Reviewed',stK(i.status))}${i.status==='Open'?`<button class="btn sm" data-act="invClose" data-id="${i.id}">Record review</button>`:''}</span></li>`).join('')}</ul></div></div>
+ <div class="grid cols2" style="margin-top:14px">
+ <div class="card"><h2>Share of results with detection, by location (%)</h2>${barChart({labels:LEGPTS,vals:byL,dec:0,color:'var(--c2)'})}<div class="legend"><span>Percent of resulted samples at each location. Culture and qPCR results are pooled for display only.</span></div></div>
+ <div class="card"><h2>Resulted samples per month</h2>${barChart({labels:MN,vals:byM.map(a=>a.length),h:200})}<div class="legend"><span>Detections: ${det.length} of ${done.length} resulted samples (${Math.round(det.length/done.length*100)}%). Seasonal read-across needs multiple years of data.</span></div></div></div>
+ <div class="card" style="margin-top:14px"><h2>Sample register <label class="f" style="flex-direction:row;align-items:center;font-weight:500">Filter <select data-path="leg.res"><option value="all">All</option><option>Detected</option><option>Not detected</option><option>Awaiting review</option><option>Pending lab</option></select></label></h2>
+ <div class="tw" style="max-height:340px;overflow:auto"><table><thead><tr><th>Sample ID</th><th>Location</th><th>Collected</th><th>Laboratory</th><th>Method</th><th>Organism</th><th class="num-r">Result</th><th>Verification</th></tr></thead><tbody>
+ ${rows.slice(0,40).map(l=>`<tr><td><span class="tag">${l.id}</span></td><td>${ptName(l.loc)}</td><td class="mono">${l.date}</td><td>${l.lab}</td><td>${l.method}</td><td>${l.org}</td><td class="num-r">${l.res==='Detected'?`${badge('Detected','warn')} ${l.val} ${l.unit}`:badge(l.res,stK(l.res))}</td><td>${badge(l.status,stK(l.status))}</td></tr>`).join('')}</tbody></table></div><div class="muted" style="margin-top:6px;font-size:12px">Showing latest ${Math.min(40,rows.length)} of ${rows.length}.</div></div>
+ <div class="card" style="margin-top:14px"><h2>Risk assessment workspace <select data-path="leg.sel" aria-label="Location">${LEGPTS.map(id=>`<option value="${id}" ${sel===id?'selected':''}>${ptName(id)}</option>`).join('')}</select></h2>
+ <div class="grid cols2"><div><h3 style="margin-bottom:6px">Evidence for ${sel}</h3><dl class="kv"><dt>Disinfectant (12-mo mean)</dt><dd>${f(mean(nn(M[sel].chl)),2)} mg/L free chlorine · ${nn(M[sel].chl).length}/12 observations</dd><dt>Temperature range</dt><dd>${f(Math.min(...M[sel].tmp),1)}–${f(Math.max(...M[sel].tmp),1)} °C</dd><dt>Water age</dt><dd>${p.age!=null?p.age+' h (modelled)':'Not available'}</dd><dt>Storage</dt><dd>${/tank/i.test(p.name)?'Downstream of storage tank':'No storage immediately upstream recorded'}</dd><dt>Sampling history</dt><dd>${ls.length} resulted samples, ${ls.filter(l=>l.res==='Detected').length} with detection</dd></dl>
+ <div class="legend"><span><i class="sw" style="background:var(--c1)"></i>Free chlorine (mg/L)</span></div>${lineChart({labels:MN,series:[{name:'Free chlorine',v:M[sel].chl}],h:170,dec:2})}</div>
+ <div><h3 style="margin-bottom:6px">Expert assessment</h3><div class="note w" style="margin-bottom:8px">Draft only. The platform does not score risk, declare compliance or recommend treatment. Enter the specialist’s own methodology and conclusion.</div>
+ <label class="f">Assessment notes and method used<textarea id="f-leg-assess" data-path="leg.assess" placeholder="Describe the evaluation method, evidence considered and uncertainty.">${esc(S.leg.assess)}</textarea></label>
+ <div class="chips" style="margin-top:8px"><button class="btn" data-act="invNew" data-id="${sel}">Open investigation for ${sel}</button></div>
+ <h3 style="margin:12px 0 6px">Resulted samples</h3><div class="tw" style="max-height:150px;overflow:auto"><table><tbody>${ls.slice().reverse().map(l=>`<tr><td class="mono">${l.date}</td><td>${l.method}</td><td>${l.res==='Detected'?l.val+' '+l.unit:'Not detected'}</td></tr>`).join('')}</tbody></table></div></div></div></div>`}
+
+/* lab & analytics */
+function labFiltered(){const q=S.lab.q.toLowerCase();return LR.filter(r=>(S.lab.param==='all'||r.pk===S.lab.param)&&(S.lab.loc==='all'||r.loc===S.lab.loc)&&(S.lab.status==='all'||r.status===S.lab.status)&&(!S.lab.issues||qc(r).length)&&(!q||(r.sampleId+r.loc+PARAMS[r.pk].name+r.lab).toLowerCase().includes(q)))}
+function vLab(){
+ const t=S.lab.tab;
+ return `<div class="head"><div><h1>Laboratory results and analytics</h1><p>Central register for analytical results, with data-quality checks and trend analysis. Source values are never overwritten; corrections are recorded separately.</p></div></div>
+ <div class="tabs" role="tablist">${[['results','Results'],['analytics','Analytics'],['import','Import']].map(([k,l])=>`<button class="tab" role="tab" aria-selected="${t===k}" data-act="set" data-path="lab.tab" data-val="${k}">${l}</button>`).join('')}</div>
+ ${t==='results'?vResults():t==='analytics'?vAnalytics():vImport()}`}
+function vResults(){
+ const F=labFiltered(),pg=S.lab.page,pages=Math.max(1,Math.ceil(F.length/12));if(pg>=pages)S.lab.page=pages-1;
+ const sm=new Set(LR.map(r=>r.sampleId)).size,recv=LR.filter(r=>r.val!=null).length,pen=LR.filter(r=>r.status==='Pending').length,rv=LR.filter(r=>r.status==='Awaiting review').length,iss=LR.filter(r=>qc(r).length).length;
+ const sel=LR.find(r=>r.id===S.lab.sel);
+ return `<div class="grid kpis" style="margin-bottom:14px">${[['Total samples',sm],['Results received',recv],['Results pending',pen],['Requiring review',rv],['Data quality issues',iss]].map(k=>`<div class="card kpi" style="cursor:default"><span class="lab">${k[0]}</span><span class="num">${k[1]}</span></div>`).join('')}</div>
+ <div class="split"><div class="card"><div class="filters"><label class="f">Search<input type="search" id="f-lab-q" data-path="lab.q" value="${esc(S.lab.q)}" placeholder="Sample, location, parameter"></label>
+ <label class="f">Parameter<select data-path="lab.param"><option value="all">All</option>${['chl','tmp','trb','ph'].map(k=>`<option value="${k}" ${S.lab.param===k?'selected':''}>${PARAMS[k].name}</option>`).join('')}</select></label>
+ <label class="f">Location<select data-path="lab.loc"><option value="all">All</option>${POINTS.map(p=>`<option value="${p.id}" ${S.lab.loc===p.id?'selected':''}>${p.id}</option>`).join('')}</select></label>
+ <label class="f">Review status<select data-path="lab.status"><option value="all">All</option><option>Verified</option><option>Awaiting review</option><option>Pending</option></select></label>
+ <label class="f" style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" data-path="lab.issues" ${S.lab.issues?'checked':''}>Data issues only</label></div>
+ <div class="tw"><table><thead><tr><th>Sample ID</th><th>Location</th><th>Collected</th><th>Laboratory</th><th>Parameter</th><th class="num-r">Result</th><th>Unit</th><th class="num-r">Rep. limit</th><th>Status</th></tr></thead><tbody>
+ ${F.slice(S.lab.page*12,S.lab.page*12+12).map(r=>{const q=qc(r);return `<tr class="row ${r.id===S.lab.sel?'sel':''}" data-act="labrow" data-id="${r.id}"><td><span class="tag">${esc(r.sampleId)}</span>${q.length?` <span class="flag" title="${q.join(', ')}">⚑</span>`:''}</td><td>${r.loc}</td><td class="mono">${r.date||'—'}</td><td>${esc(r.lab)||'—'}</td><td>${PARAMS[r.pk].name.replace('Assimilable organic carbon','AOC')}</td><td class="num-r">${f(r.val,PARAMS[r.pk].dec)}</td><td>${esc(r.unit)||'—'}</td><td class="num-r">${r.rl}</td><td>${badge(r.status,stK(r.status))}</td></tr>`}).join('')}</tbody></table></div>
+ <div class="filters" style="margin:10px 0 0;justify-content:space-between"><span class="muted">${F.length} records</span><span class="chips"><button class="btn sm" data-act="page" data-v="-1" ${S.lab.page===0?'disabled':''}>Previous</button><span class="muted">Page ${S.lab.page+1} of ${pages}</span><button class="btn sm" data-act="page" data-v="1" ${S.lab.page>=pages-1?'disabled':''}>Next</button></span></div></div>
+ <div>${sel?labPanel(sel):`<div class="card"><h2>Record detail</h2><p class="muted">Select a row to see metadata, history, chain of custody and audit trail.</p><div class="skel" style="width:80%;margin-bottom:8px"></div><div class="skel" style="width:60%"></div></div>`}</div></div>`}
+function labPanel(r){
+ const q=qc(r),au=S.audit[r.id]||[{t:r.date||'unknown',w:r.lab||'Laboratory',a:'Result received from laboratory (source value stored)'},{t:'2026-11-10',w:'System',a:'Imported into AquaTrace (simulated)'}];
+ const cor=S.corrs[r.id];
+ return `<div class="card"><h2>${esc(r.sampleId)} ${badge(r.status,stK(r.status))}</h2>
+ <dl class="kv"><dt>Record</dt><dd class="mono">${r.id}</dd><dt>Location</dt><dd>${P[r.loc]?ptName(r.loc):esc(r.loc)+' (not in network)'}</dd><dt>Parameter</dt><dd>${PARAMS[r.pk].name}</dd><dt>Source value</dt><dd><strong>${f(r.val,PARAMS[r.pk].dec)} ${esc(r.unit)}</strong> (preserved)</dd>${cor?`<dt>Proposed correction</dt><dd><strong>${esc(cor.v)}</strong> · ${esc(cor.why)} · ${badge('Pending verification','warn')}</dd>`:''}<dt>Reporting limit</dt><dd>${r.rl} ${esc(r.unit)}</dd><dt>Method</dt><dd>${r.method}</dd><dt>Laboratory</dt><dd>${esc(r.lab)||'Missing'}</dd><dt>Collected</dt><dd>${r.date||'Missing'}</dd></dl>
+ ${q.length?`<div class="note w" style="margin:10px 0"><strong>Quality flags:</strong> ${q.join('; ')}</div>`:`<div class="note" style="margin:10px 0">No automated quality flags.</div>`}
+ <h3 style="margin:10px 0 4px">History at ${r.loc}</h3>${P[r.loc]?lineChart({labels:MN,series:[{name:r.loc,v:M[r.loc][r.pk]}],h:140,dec:PARAMS[r.pk].dec}):'<div class="muted">No location match, no history.</div>'}
+ <h3 style="margin:10px 0 4px">Chain of custody (simulated)</h3><ul class="list"><li><span>Collected by field team</span><span class="mono muted">${r.date||'—'}</span></li><li><span>Relinquished to courier</span><span class="mono muted">same day</span></li><li><span>Received by laboratory</span><span class="mono muted">+1 day</span></li></ul>
+ <h3 style="margin:10px 0 4px">Supporting reports</h3><div class="muted">Lab report ${r.id}.pdf (simulated attachment)</div>
+ <h3 style="margin:10px 0 4px">Audit history</h3><ul class="list">${au.map(a=>`<li><span>${esc(a.a)}<div class="muted">${esc(a.w)}</div></span><span class="mono muted">${esc(a.t)}</span></li>`).join('')}</ul>
+ <h3 style="margin:10px 0 4px">Verification</h3>
+ <div class="two"><label class="f">Corrected value<input id="f-lab-corr" data-path="lab.corr" value="${esc(S.lab.corr)}"></label><label class="f">Reviewer<input id="f-lab-reviewer" data-path="lab.reviewer" value="${esc(S.lab.reviewer)}"></label></div>
+ <label class="f" style="margin-top:6px">Reason<input id="f-lab-reason" data-path="lab.reason" value="${esc(S.lab.reason)}"></label>
+ <div class="chips" style="margin-top:8px"><button class="btn" data-act="corr" ${S.lab.corr&&S.lab.reason&&S.lab.reviewer?'':'disabled'}>Record correction</button><button class="btn pri" data-act="verify" ${S.lab.reviewer&&r.status!=='Verified'&&!q.length?'':'disabled'}>Mark verified</button></div>
+ ${q.length?'<div class="muted" style="font-size:12px;margin-top:6px">Resolve quality flags before verification.</div>':''}</div>`}
+function vAnalytics(){
+ const pk=S.an.param,P_=PARAMS[pk],A=S.an.a,B=S.an.b,k=S.an.k;
+ const a=M[A][pk],b=M[B][pk],all=POINTS.flatMap(p=>M[p.id][pk]),vals=nn(all),total=all.length;
+ const seas=MN.map((_,m)=>mean(nn(POINTS.map(p=>M[p.id][pk][m]))));
+ const zone=Object.keys(ZN).map(z=>mean(nn(POINTS.filter(p=>p.zone===z).flatMap(p=>M[p.id][pk]))));
+ const freq=MN.map((_,m)=>POINTS.filter(p=>M[p.id][pk][m]!=null).length);
+ const lo=Math.min(...vals),hi=Math.max(...vals),bins=8,hist=Array(bins).fill(0);vals.forEach(v=>hist[Math.min(bins-1,Math.floor((v-lo)/((hi-lo)||1)*bins))]++);
+ const an=[];POINTS.forEach(p=>{const s=M[p.id][pk],v=nn(s),mu=mean(v),sg=sd(v);if(v.length<4||!sg)return;s.forEach((x,i)=>{if(x==null){if(pk!=='aoc')an.push({p,i,t:'Missing observation',x:null,why:`No ${P_.name.toLowerCase()} value recorded for ${MN[i]}.`});return}const z=(x-mu)/sg;if(Math.abs(z)>=k)an.push({p,i,t:'Unusual variation',x,why:`${f(x,P_.dec)} ${P_.unit} is ${f(Math.abs(z),1)} SD ${z>0?'above':'below'} this location’s own mean of ${f(mu,P_.dec+1)} (SD ${f(sg,P_.dec+2)}, n=${v.length}).`})})});
+ const stat=s=>{const v=nn(s);return `<tr><td>n</td><td class="num-r">${v.length}</td></tr><tr><td>Mean</td><td class="num-r">${f(mean(v),P_.dec+1)}</td></tr><tr><td>Min – max</td><td class="num-r">${f(Math.min(...v),P_.dec)} – ${f(Math.max(...v),P_.dec)}</td></tr><tr><td>Std. dev.</td><td class="num-r">${f(sd(v),P_.dec+2)}</td></tr>`};
+ const locSel=(path,v)=>`<select data-path="${path}">${POINTS.map(p=>`<option value="${p.id}" ${v===p.id?'selected':''}>${p.id} · ${p.name}</option>`).join('')}</select>`;
+ return `<div class="filters"><label class="f">Parameter<select data-path="an.param">${Object.keys(PARAMS).map(x=>`<option value="${x}" ${pk===x?'selected':''}>${PARAMS[x].name}</option>`).join('')}</select></label><label class="f">Location A${locSel('an.a',A)}</label><label class="f">Location B${locSel('an.b',B)}</label><label class="f">Anomaly screen (SD)<input type="number" id="f-an-k" data-path="an.k" data-num="1" min="1" max="4" step=".5" value="${k}" style="width:90px"></label></div>
+ <div class="card flat" style="margin-bottom:14px"><dl class="kv" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));display:grid"><div><dt>Completeness</dt><dd><strong>${Math.round(vals.length/total*100)}%</strong> (${vals.length} of ${total} scheduled)</dd></div><div><dt>Missing observations</dt><dd>${total-vals.length}</dd></div><div><dt>Unit</dt><dd>${P_.unit}</dd></div><div><dt>Reporting limit</dt><dd>${P_.rl}</dd></div><div><dt>Method</dt><dd>${P_.method}</dd></div><div><dt>Source laboratory</dt><dd>Riverbend Reference Lab, Northgate Analytical (simulated)</dd></div></dl></div>
+ <div class="grid cols2"><div class="card"><h2>${A} vs ${B}</h2>${lineChart({labels:MN,series:[{name:A,v:a},{name:B,v:b}],dec:P_.dec,unit:P_.unit})}<div class="legend"><span><i class="sw" style="background:var(--c1)"></i>${A} ${P[A].name}</span><span><i class="sw" style="background:var(--c2)"></i>${B} ${P[B].name}</span><span>${P_.unit}</span></div>
+ <div class="two" style="margin-top:10px"><div class="tw"><table><thead><tr><th>${A}</th><th></th></tr></thead><tbody>${stat(a)}</tbody></table></div><div class="tw"><table><thead><tr><th>${B}</th><th></th></tr></thead><tbody>${stat(b)}</tbody></table></div></div></div>
+ <div class="card"><h2>Seasonal variation (network mean)</h2>${barChart({labels:MN,vals:seas,dec:P_.dec>1?1:P_.dec+1,h:220})}<div class="legend"><span>Monthly mean across all locations with a value. ${P_.unit}</span></div></div>
+ <div class="card"><h2>Zone comparison</h2>${barChart({labels:Object.keys(ZN).map(z=>'Zone '+z),vals:zone,dec:P_.dec+1,colors:['var(--c1)','var(--c2)','var(--c3)','var(--c1)']})}<div class="legend"><span>12-month mean by distribution zone. ${P_.unit}</span></div></div>
+ <div class="card"><h2>Statistical distribution</h2>${barChart({labels:hist.map((_,i)=>f(lo+(hi-lo)*i/bins,P_.dec)),vals:hist,h:220,color:'var(--c3)'})}<div class="legend"><span>Count of all observations by value bin (lower bound, ${P_.unit}).</span></div></div>
+ <div class="card"><h2>Sampling frequency</h2>${barChart({labels:MN,vals:freq,h:200})}<div class="legend"><span>Locations with a ${P_.name.toLowerCase()} value each month.</span></div></div>
+ <div class="card"><h2>Anomaly identification (illustrative)</h2><div class="note" style="margin-bottom:8px">Screen: values more than ${k} SD from the location’s own 12-month mean, plus missing observations. This highlights data for review. It is not a safety or compliance judgment.</div>
+ <div class="tw" style="max-height:300px;overflow:auto"><table><thead><tr><th>Location</th><th>Month</th><th>Type</th><th>Why flagged</th></tr></thead><tbody>${an.length?an.slice(0,30).map(x=>`<tr><td class="mono">${x.p.id}</td><td>${MN[x.i]}</td><td>${badge(x.t,x.x==null?'neu':'warn')}</td><td>${x.why}</td></tr>`).join(''):'<tr><td colspan="4" class="muted">Nothing flagged at this setting.</td></tr>'}</tbody></table></div></div></div>`}
+function vImport(){
+ const st=S.lab.imp,steps=['Select file','Map columns','Validate','Duplicates','Missing fields','Preview','Confirm'];
+ const cols=[['sample_id','Sample ID'],['site','Location'],['collected','Collection date'],['analyte','Parameter'],['result','Result'],['units','Unit'],['rl','Reporting limit']];
+ let body='';
+ if(st===0)body=`<p>Upload CSV, Excel or a laboratory result template. This prototype simulates parsing with a sample batch.</p><div class="filters"><label class="f">File<input type="file" id="f-file" accept=".csv,.xlsx,.xls" data-act="file"></label><button class="btn pri" data-act="impUse">Use sample batch</button></div>${S.lab.impFile?`<div class="note">Selected: ${esc(S.lab.impFile)}</div>`:''}`;
+ if(st===1)body=`<p>Map columns from <strong>${esc(S.lab.impFile)}</strong> to AquaTrace fields.</p><div class="tw"><table><thead><tr><th>Source column</th><th>AquaTrace field</th><th>Sample value</th></tr></thead><tbody>${cols.map((c,i)=>`<tr><td class="mono">${c[0]}</td><td><select aria-label="Field for ${c[0]}">${cols.map((d,j)=>`<option ${i===j?'selected':''}>${d[1]}</option>`).join('')}</select></td><td class="mono muted">${['S-20261111-05','SP-05','2026-11-11','Free chlorine','0.71','mg/L','0.02'][i]}</td></tr>`).join('')}</tbody></table></div>`;
+ if(st===2)body=`<p>Validating 8 rows…</p><div class="bar"><i style="width:100%"></i></div><ul class="list" style="margin-top:10px"><li><span>Required columns present</span>${badge('Pass','ok')}</li><li><span>Numeric results parse</span>${badge('8 of 8','ok')}</li><li><span>Locations match network</span>${badge('7 of 8','warn')}</li><li><span>Units present</span>${badge('7 of 8','warn')}</li></ul>`;
+ if(st===3)body=`<ul class="list"><li><span>Compared with ${LR.length} existing records</span>${badge('1 possible duplicate','warn')}</li><li><span class="mono">S-20261111-05 · Free chlorine</span><span class="muted">Matches record LR-0100 on sample, location and parameter. Held for review.</span></li></ul>`;
+ if(st===4)body=`<ul class="list"><li><span>Row 4: unit missing</span>${badge('Held','warn')}</li><li><span>Row 6: location SP-99 not in network</span>${badge('Held','warn')}</li><li><span>Rows with complete metadata</span>${badge('5 of 8','ok')}</li></ul>`;
+ if(st===5)body=`<div class="tw"><table><thead><tr><th>Sample ID</th><th>Location</th><th>Parameter</th><th class="num-r">Result</th><th>Unit</th><th>Import</th></tr></thead><tbody>${IMPORT.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="num-r">${r[3]}</td><td>${r[4]||'—'}</td><td>${r[5]?badge('Ready','ok'):badge('Held','warn')}</td></tr>`).join('')}</tbody></table></div>`;
+ if(st===6)body=S.lab.impDone?`<div class="note"><strong>Import complete (simulated).</strong> 5 records were added to the register with status “Awaiting review”. Held rows remain outside the register. Original file contents are unchanged.</div>`:`<p>Only authorized users can confirm. Confirming adds 5 ready records. Held rows are not imported.</p><label class="f" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-path="lab.impOk" ${S.lab.impOk?'checked':''}>I am authorized to import laboratory data for this program</label><div style="margin-top:10px"><button class="btn pri" data-act="impConfirm" ${S.lab.impOk?'':'disabled'}>Confirm import</button></div>`;
+ return `<div class="card"><div class="stepper">${steps.map((s,i)=>`<span class="step ${i<st?'done':''}" ${i===st?'aria-current="step"':''}>${i+1}. ${s}</span>`).join('')}</div>${body}
+ <div class="chips" style="margin-top:14px"><button class="btn" data-act="impBack" ${st===0?'disabled':''}>Back</button>${st>0&&st<6?`<button class="btn pri" data-act="impNext">Continue</button>`:''}${S.lab.impDone?'<button class="btn" data-act="impReset">Start over</button>':''}</div></div>`}
+const IMPORT=[['S-20261111-05','SP-05','Free chlorine','0.71','mg/L',1],['S-20261111-05','SP-05','Temperature','16.2','°C',1],['S-20261111-06','SP-06','Free chlorine','0.52','mg/L',1],['S-20261111-06','SP-06','pH','7.52','',0],['S-20261111-07','SP-99','Turbidity','0.14','NTU',0],['S-20261111-08','SP-08','Free chlorine','0.60','mg/L',1],['S-20261111-08','SP-08','Turbidity','0.16','NTU',1],['S-20261111-05','SP-05','Free chlorine','0.71','mg/L',0]].map(r=>r);
+
+/* reports */
+const REPTYPES=['Water Quality Assessment','Distribution System Assessment','Legionella Monitoring Report','Sampling Program Report','Laboratory Results Summary','Risk Assessment Report','Research Summary'];
+function vReport(){
+ const R=S.rep,steps=['Client & system','Period','Records','Findings & references','Review & approve','Generate'];
+ const pks=Object.keys(R.params).filter(k=>R.params[k]);
+ const form=[
+ `<label class="f">Report type<select data-path="rep.type">${REPTYPES.map(t=>`<option ${R.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="f" style="margin-top:8px">Client<input id="f-rep-client" data-path="rep.client" value="${esc(R.client)}"></label><label class="f" style="margin-top:8px">Distribution system<select data-path="rep.sys"><option>Riverbend Distribution</option></select></label>`,
+ `<div class="two"><label class="f">From<select data-path="rep.from" data-num="1">${MN.map((n,i)=>`<option value="${i}" ${R.from===i?'selected':''}>${n}</option>`).join('')}</select></label><label class="f">To<select data-path="rep.to" data-num="1">${MN.map((n,i)=>`<option value="${i}" ${R.to===i?'selected':''}>${n}</option>`).join('')}</select></label></div>${R.from>R.to?'<div class="note w" style="margin-top:8px">Start month is after end month.</div>':''}`,
+ `<h3 style="margin-bottom:6px">Locations</h3><div class="chips">${POINTS.map(p=>`<button class="chip" data-act="repLoc" data-id="${p.id}" aria-pressed="${R.locs.includes(p.id)}">${p.id}</button>`).join('')}</div><h3 style="margin:12px 0 6px">Parameters</h3><div class="chips">${Object.keys(PARAMS).map(k=>`<button class="chip" data-act="repPar" data-id="${k}" aria-pressed="${!!R.params[k]}">${PARAMS[k].name.replace('Assimilable organic carbon','AOC').replace('Free chlorine residual','Free chlorine')}</button>`).join('')}</div><label class="f" style="flex-direction:row;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" data-path="rep.leg" ${R.leg?'checked':''}>Include Legionella sample counts</label>`,
+ `<label class="f">Technical findings (written by the specialist)<textarea id="f-rep-findings" data-path="rep.findings" placeholder="Findings, interpretation and recommendations.">${esc(R.findings)}</textarea></label><label class="f" style="margin-top:8px">References (citations you supply)<textarea id="f-rep-refs" data-path="rep.refs" placeholder="One citation per line. Use sources you have verified.">${esc(R.refs)}</textarea></label>`,
+ `<div class="note w" style="margin-bottom:8px">Consequential conclusions require approval by a qualified specialist. Approval is recorded with the reviewer’s name.</div><label class="f">Reviewer name<input id="f-rep-reviewer" data-path="rep.reviewer" value="${esc(R.reviewer)}"></label><div class="chips" style="margin-top:8px"><button class="btn pri" data-act="repApprove" ${R.reviewer&&R.findings?'':'disabled'}>${R.approved?'Approved':'Approve report'}</button>${R.approved?'<button class="btn" data-act="repUnapprove">Withdraw approval</button>':''}</div>${R.findings?'':'<div class="muted" style="font-size:12px;margin-top:6px">Add findings before approval.</div>'}`,
+ `<p>Data export includes values, units, methods and source labels.</p><div class="chips"><button class="btn pri" data-act="repCsv">Build CSV</button></div>${R.csv?`<label class="f" style="margin-top:8px">CSV (select and copy)<textarea id="f-rep-csv" readonly style="font-family:var(--mono);font-size:12px;min-height:140px">${esc(R.csv)}</textarea></label>`:''}<div class="muted" style="margin-top:8px;font-size:12px">The preview on the right is the report. PDF export is not available in this prototype.</div>`][R.step-1];
+ return `<div class="head"><div><h1>Technical reporting</h1><p>Assemble a consulting report from verified platform records. Charts, tables and counts come from the data. Findings and recommendations are written by you.</p></div></div>
+ <div class="stepper">${steps.map((s,i)=>`<button class="step ${i+1<R.step?'done':''}" data-act="repStep" data-v="${i+1}" ${R.step===i+1?'aria-current="step"':''}>${i+1}. ${s}</button>`).join('')}</div>
+ <div class="split" style="grid-template-columns:minmax(0,320px) minmax(0,1fr)"><div class="card">${form}<div class="chips" style="margin-top:14px"><button class="btn" data-act="repStep" data-v="${Math.max(1,R.step-1)}" ${R.step===1?'disabled':''}>Back</button><button class="btn pri" data-act="repStep" data-v="${Math.min(6,R.step+1)}" ${R.step===6?'disabled':''}>Next</button></div></div>
+ <div>${repDoc(pks)}</div></div>`}
+function repDoc(pks){
+ const R=S.rep,locs=R.locs.filter(id=>P[id]),from=Math.min(R.from,R.to),to=Math.max(R.from,R.to),per=MN.slice(from,to+1);
+ const rows=[];locs.forEach(id=>pks.forEach(pk=>{const s=M[id][pk].slice(from,to+1),v=nn(s);rows.push({id,pk,n:v.length,exp:s.length,mean:mean(v),min:v.length?Math.min(...v):null,max:v.length?Math.max(...v):null,last:v.length?v[v.length-1]:null})}));
+ const miss=rows.reduce((a,r)=>a+(r.exp-r.n),0),lg=LEG.filter(l=>locs.includes(l.loc)&&l.m>=from&&l.m<=to),lgr=lg.filter(l=>l.res!=='Pending');
+ const first=pks[0],series=first?locs.map((id,i)=>({name:id,v:M[id][first].slice(from,to+1)})):[];
+ const ap=R.approved;
+ return `<div class="doc"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span class="muted mono">AquaTrace · ${R.type}</span><span class="stamp ${ap?'ok':''}">${ap?'APPROVED · '+esc(R.reviewer):'DRAFT · NOT REVIEWED'}</span></div>
+ <h1 style="margin-top:14px">${esc(R.type)}</h1><p class="muted">${esc(R.client)} · ${esc(R.sys)} · ${MFULL[from]} to ${MFULL[to]}</p><p><strong>Simulated demo data.</strong> No value in this report is a real measurement.</p>
+ <h2>Executive summary</h2><p>${R.findings?esc(R.findings.split('\n')[0]):'<span class="muted">To be written by the specialist. Use step 4.</span>'}</p>
+ <h2>Objectives and system description</h2><p>Review of ${locs.length} sampling location${locs.length===1?'':'s'} (${locs.map(id=>id).join(', ')||'none selected'}) across ${new Set(locs.map(id=>P[id].zone)).size} distribution zone(s) for ${per.length} month(s).</p>
+ <h2>Sampling methodology</h2><p>${pks.map(k=>`${PARAMS[k].name}: ${PARAMS[k].method}`).join('; ')||'No parameters selected.'}. Laboratories: Riverbend Reference Lab and Northgate Analytical (simulated).</p>
+ <h2>Results</h2>${rows.length?`<div class="tw"><table><thead><tr><th>Location</th><th>Parameter</th><th class="num-r">n/expected</th><th class="num-r">Mean</th><th class="num-r">Min</th><th class="num-r">Max</th><th class="num-r">Latest</th><th>Unit</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="mono">${r.id}</td><td>${PARAMS[r.pk].name.replace('Assimilable organic carbon','AOC').replace('Free chlorine residual','Free chlorine')}</td><td class="num-r">${r.n}/${r.exp}</td><td class="num-r">${f(r.mean,PARAMS[r.pk].dec+1)}</td><td class="num-r">${f(r.min,PARAMS[r.pk].dec)}</td><td class="num-r">${f(r.max,PARAMS[r.pk].dec)}</td><td class="num-r">${f(r.last,PARAMS[r.pk].dec)}</td><td>${PARAMS[r.pk].unit}</td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">Select locations and parameters in step 3.</p>'}
+ ${first&&series.length?`<h2>Data analysis</h2><p class="muted">${PARAMS[first].name} (${PARAMS[first].unit}) by month</p>${lineChart({labels:per,series,dec:PARAMS[first].dec,h:200,unit:PARAMS[first].unit})}<div class="legend">${series.map((s,i)=>`<span><i class="sw" style="background:var(--c${i%3+1})"></i>${s.name}</span>`).join('')}</div>`:''}
+ ${R.leg?`<h2>Legionella monitoring</h2><p>${lg.length} samples collected at the selected locations in the period; ${lgr.length} resulted, ${lgr.filter(l=>l.res==='Detected').length} with a detection recorded. Interpretation is left to the reviewing specialist.</p>`:''}
+ <h2>Limitations</h2><ul><li>Demo data are simulated and unvalidated.</li><li>${miss} expected observation${miss===1?'':'s'} missing in the selected records.</li><li>No regulatory limits or risk scores are applied.</li></ul>
+ <h2>Technical findings and recommendations</h2>${R.findings?`<p style="white-space:pre-wrap">${esc(R.findings)}</p>`:'<p class="muted">Not yet written.</p>'}
+ <h2>References</h2>${R.refs?`<p style="white-space:pre-wrap">${esc(R.refs)}</p>`:'<p class="muted">No references supplied.</p>'}
+ <h2>Appendix</h2><p class="muted">Data source: AquaTrace demo dataset. Units and methods as listed. Report version 0.${ap?2:1}.</p></div>`}
+
+function vStart(){
+ const st=S.start,dots=[0,1,2].map(i=>`<i class="${i===st?'on':''}"></i>`).join('');
+ const logo=`<div class="slogo"><svg width="24" height="28" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2s8 8.5 8 14a8 8 0 0 1-16 0c0-5.5 8-14 8-14z" fill="#ff6b8d"/><circle cx="13" cy="16" r="3" fill="#0a1f33"/></svg>AquaTrace</div>`;
+ let b='';
+ if(st===0)b=`<div class="sgrid"><div><div class="skick">Water quality intelligence · Prototype</div><h1 class="sh1">Welcome, <em>Mark</em>.</h1><p class="slead">A workbench prepared for Mark LeChevallier. It brings distribution-system sampling, laboratory results, Legionella monitoring and technical reporting into one set of connected records.</p><div class="sbtn"><button class="btn pri" data-act="startNext">Continue →</button><button class="btn sghost" data-act="startSkip">Skip to platform</button></div></div>
+  <div class="pass"><div class="mono pk">Access pass · prototype</div><div class="pn">Mark LeChevallier</div><dl><dt>Workspace</dt><dd>Riverbend Distribution</dd><dt>Utility</dt><dd>Riverbend Water Authority (fictional)</dd><dt>Data</dt><dd>Simulated demo data</dd><dt>Sign-in</dt><dd>Not required for this prototype</dd></dl></div></div>`;
+ if(st===1)b=`<div><div class="skick">Before you begin</div><h1 class="sh1 m">Three rules built into every screen.</h1>
+  <ul class="rules"><li><b>All data is simulated.</b>Measurements, laboratories, locations and people in this prototype are fictional.</li><li><b>Source values are preserved.</b>Corrections are recorded separately, with a reason and a reviewer.</li><li><b>Specialists decide.</b>AquaTrace does not declare compliance, score risk or recommend treatment. Reports stay drafts until a named reviewer approves them.</li></ul>
+  <label class="ack"><input type="checkbox" id="ack" data-path="ack" ${S.ack?'checked':''}>I understand and want to continue</label>
+  <div class="sbtn"><button class="btn sghost" data-act="startBack">Back</button><button class="btn pri" data-act="startNext" ${S.ack?'':'disabled'}>Continue →</button></div></div>`;
+ if(st===2)b=`<div style="width:100%"><div class="skick">Choose a starting point</div><h1 class="sh1 m">Where would you like to begin?</h1>
+  <div class="opts"><button class="opt" data-act="startPick" data-v="tour"><small>5 stops · 2 min</small><b>Guided tour</b><span>Map, a monitoring program, a lab record, Legionella data and a sample report.</span></button>
+  <button class="opt" data-act="startPick" data-v="map"><small>Hero feature</small><b>Distribution map</b><span>Select a sampling point, compare months and open its records.</span></button>
+  <button class="opt" data-act="startPick" data-v="report"><small>Finished output</small><b>Sample report</b><span>See a technical report assembled from the records, pending approval.</span></button></div>
+  <div class="sbtn"><button class="btn sghost" data-act="startBack">Back</button><button class="btn sghost" data-act="startPick" data-v="overview">Open the overview</button></div></div>`;
+ return `<div class="start">${RINGS}<div class="sin"><div class="stop">${logo}<div class="dots" aria-label="Step ${st+1} of 3">${dots}</div></div><div class="smain">${b}</div><div class="sfoot">Concept prototype using simulated data. It is not a system requested or used by Dr. Water Consulting.</div></div></div>`}
+/* ---------- render ---------- */
+function render(keepScroll){
+ const ae=document.activeElement,fid=ae&&ae.id,ss=ae&&ae.selectionStart,se=ae&&ae.selectionEnd,sy=window.scrollY;
+ const app=$('#app');
+ if(S.start<3){app.className='';app.innerHTML=vStart();renderOverlay();const e0=fid&&document.getElementById(fid);if(e0)e0.focus();return}
+ app.className='app'+(S.side?'':' min');
+ if(!$('#screen')||!app.querySelector('.side'))app.innerHTML=shell();
+ else{app.querySelectorAll('.nav[data-v]').forEach(b=>{b.toggleAttribute('aria-current',b.dataset.v===S.screen);if(b.dataset.v===S.screen)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
+ const v={overview:vOverview,map:vMap,legionella:vLeg,lab:vLab,report:vReport}[S.screen]();
+ $('#screen').innerHTML=v;
+ $('#screen').querySelectorAll('[data-path]').forEach(e=>{if(!e.id)e.id='f-'+e.dataset.path.replace(/\./g,'-')});
+ const tabs=document.querySelectorAll('.tab');
+ afterRender();renderOverlay();
+ if(fid){const e=document.getElementById(fid);if(e){e.focus();try{if(ss!=null)e.setSelectionRange(ss,se)}catch(x){}}}
+ if(keepScroll)window.scrollTo(0,sy);
+}
+function afterRender(){
+ if(S.screen==='overview'&&S.anim){S.anim=false;const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  document.querySelectorAll('.count').forEach(el=>{const t=+el.dataset.v;if(rm){el.textContent=t;return}const t0=performance.now();(function s(now){const p=Math.min(1,(now-t0)/700);el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(s)})(t0)})}
+ const svg=$('#mapsvg');if(svg){const vp=$('#vp');let drag=null,moved=false;const v=S.map.v;
+  const apply=()=>vp.setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.k})`);
+  svg.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,vx:v.x,vy:v.y};moved=false});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;const r=svg.getBoundingClientRect(),sc=820/r.width,dx=(e.clientX-drag.x)*sc,dy=(e.clientY-drag.y)*sc;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;if(moved){v.x=drag.vx+dx;v.y=drag.vy+dy;apply()}});
+  const end=()=>{drag=null;setTimeout(()=>{svg._moved=moved},0)};svg.addEventListener('pointerup',end);svg.addEventListener('pointerleave',end);
+  svg.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true);
+  svg.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.deltaY<0?1.15:.87,e.clientX,e.clientY)},{passive:false});}
+}
+function zoomAt(fac,cx,cy){const svg=$('#mapsvg'),v=S.map.v,r=svg.getBoundingClientRect(),sc=820/r.width;
+ const px=cx==null?410:(cx-r.left)*sc,py=cy==null?230:(cy-r.top)*sc,nk=Math.max(.8,Math.min(4,v.k*fac)),k=nk/v.k;
+ v.x=px-(px-v.x)*k;v.y=py-(py-v.y)*k;v.k=nk;$('#vp').setAttribute('transform',`translate(${v.x} ${v.y}) scale(${v.k})`)}
+function overlayHTML(){
+ let h='';
+ if(S.modal&&S.modal.t==='inv'){const m=S.modal;h+=`<div class="modal" data-act="closeModal"><div class="card" data-stop="1"><h2>New technical investigation</h2>
+ <div class="grid"><label class="f">Title<input id="m-title" value="${esc(m.loc?'Review of results at '+m.loc:'')}"></label><label class="f">Location<select id="m-loc">${POINTS.map(p=>`<option value="${p.id}" ${m.loc===p.id?'selected':''}>${ptName(p.id)}</option>`).join('')}</select></label><label class="f">Assigned reviewer<input id="m-rev" placeholder="Name"></label><label class="f">Findings and observations<textarea id="m-find"></textarea></label><label class="f">Follow-up activities<input id="m-follow"></label></div>
+ <div class="chips" style="margin-top:12px;justify-content:flex-end"><button class="btn" data-act="closeModal">Cancel</button><button class="btn pri" data-act="invSave">Create investigation</button></div></div></div>`}
+ if(S.tour>=0){const T=TOUR[S.tour];h+=`<div class="tour" role="dialog" aria-label="Product tour"><div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#7fb3cf;margin-bottom:4px">Tour · ${S.tour+1} of ${TOUR.length}</div><h3>${T.t}</h3><p>${T.d}</p><div class="chips"><button class="btn" data-act="tourStop">Exit</button><button class="btn" data-act="tour" data-v="${S.tour-1}" ${S.tour===0?'disabled':''}>Back</button><button class="btn pri" data-act="${S.tour===TOUR.length-1?'tourStop':'tour'}" data-v="${S.tour+1}">${S.tour===TOUR.length-1?'Finish':'Next'}</button></div></div>`}
+ return h}
+function renderOverlay(){const o=$('#overlay');const html=overlayHTML();if(o.dataset.h!==html){o.innerHTML=html;o.dataset.h=html}}
+const TOUR=[
+ {t:'Executive overview',d:'Programs, pending results and items needing attention in one view.',run(){S.screen='overview';S.anim=true}},
+ {t:'Distribution system map',d:'Pan, zoom, switch layers and drag the timeline. Select a point to inspect it.',run(){S.screen='map';S.map.sel='SP-12';S.map.layer='chl'}},
+ {t:'A monitoring program',d:'Programs list frequency, last and next sampling dates, with overdue items flagged.',run(){S.screen='overview'}},
+ {t:'A laboratory record',d:'Each record keeps its source value, method, quality flags, custody and audit trail.',run(){S.screen='lab';S.lab.tab='results';S.lab.sel='LR-0006'}},
+ {t:'Legionella monitoring',d:'Review the sample register and detection counts. Conclusions stay with the reviewing specialist.',run(){S.screen='legionella'}},
+ {t:'Sample technical report',d:'Records, charts and your findings assemble into a draft that needs specialist approval.',run(){S.screen='report';S.rep.step=6}}];
+
+/* ---------- events ---------- */
+function go(s){S.screen=s;S.anim=s==='overview';location.hash=s;render();window.scrollTo(0,0)}
+document.addEventListener('click',e=>{
+ if(e.target.closest('[data-stop]')&&!e.target.closest('[data-act]'))return;
+ const el=e.target.closest('[data-act]');if(!el)return;const a=el.dataset.act,v=el.dataset.v,id=el.dataset.id;
+ if(a==='file')return;
+ if(a==='closeModal'&&e.target.closest('.modal>.card')&&el.classList.contains('modal'))return;
+ switch(a){
+ case'nav':go(v);break;
+ case'side':S.side=!S.side;render(true);break;
+ case'set':{let val=el.dataset.val;if(val==='true')val=true;if(val==='false')val=false;setPath(S,el.dataset.path,val);if(el.dataset.path==='lab.tab'){}render(true);break}
+ case'pick':S.map.sel=id;render(true);break;
+ case'zoom':if(v==='0'){S.map.v={x:0,y:0,k:1};render(true)}else zoomAt(+v);break;
+ case'goLab':S.lab.loc=id;S.lab.tab='results';S.lab.page=0;go('lab');break;
+ case'goCmp':S.an.a=id;S.an.b=id===S.an.b?'SP-04':S.an.b;S.lab.tab='analytics';go('lab');break;
+ case'goRep':S.rep.locs=Array.from(new Set([id].concat(S.rep.locs))).slice(0,4);S.rep.step=3;go('report');break;
+ case'labrow':S.lab.sel=id;render(true);break;
+ case'page':S.lab.page=Math.max(0,S.lab.page+ +v);render(true);break;
+ case'corr':{const r=LR.find(x=>x.id===S.lab.sel);S.corrs[r.id]={v:S.lab.corr,why:S.lab.reason};(S.audit[r.id]=S.audit[r.id]||[{t:r.date||'unknown',w:r.lab||'Laboratory',a:'Result received from laboratory (source value stored)'},{t:'2026-11-10',w:'System',a:'Imported into AquaTrace (simulated)'}]).push({t:TODAY,w:S.lab.reviewer,a:`Correction proposed: ${S.lab.corr}. Reason: ${S.lab.reason}. Source value unchanged.`});S.lab.corr='';S.lab.reason='';render(true);break}
+ case'verify':{const r=LR.find(x=>x.id===S.lab.sel);r.status='Verified';(S.audit[r.id]=S.audit[r.id]||[{t:r.date||'unknown',w:r.lab||'Laboratory',a:'Result received from laboratory (source value stored)'},{t:'2026-11-10',w:'System',a:'Imported into AquaTrace (simulated)'}]).push({t:TODAY,w:S.lab.reviewer,a:'Record verified by reviewer'});render(true);break}
+ case'impUse':S.lab.impFile='riverbend_lab_batch_2026-11.csv';S.lab.imp=1;render(true);break;
+ case'impNext':S.lab.imp=Math.min(6,S.lab.imp+1);render(true);break;
+ case'impBack':S.lab.imp=Math.max(0,S.lab.imp-1);render(true);break;
+ case'impReset':S.lab.imp=0;S.lab.impDone=false;S.lab.impOk=false;S.lab.impFile='';render(true);break;
+ case'impConfirm':{let n=LR.length;IMPORT.filter(r=>r[5]).forEach((r,i)=>{const pk=Object.keys(PARAMS).find(k=>PARAMS[k].name.toLowerCase().startsWith(r[2].toLowerCase().split(' ')[0]));LR.push({id:`LR-${String(++n).padStart(4,'0')}`,sampleId:r[0],loc:r[1],date:'2026-11-11',m:11,lab:LABS[0],method:PARAMS[pk].method,pk,val:+r[3],unit:r[4],rl:PARAMS[pk].rl,status:'Awaiting review',src:'import'})});S.lab.impDone=true;render(true);break}
+ case'invNew':S.modal={t:'inv',loc:id||S.leg.sel};render();break;
+ case'closeModal':S.modal=null;render(true);break;
+ case'invSave':{const t=$('#m-title').value.trim()||'Untitled investigation';S.inv.push({id:'INV-'+String(S.inv.length+1).padStart(3,'0'),title:t,loc:$('#m-loc').value,reviewer:$('#m-rev').value.trim()||'Unassigned',findings:$('#m-find').value,follow:$('#m-follow').value,status:'Open'});S.modal=null;render(true);break}
+ case'invClose':{const i=S.inv.find(x=>x.id===id);i.status='Reviewed';render(true);break}
+ case'repStep':S.rep.step=+v;render(true);break;
+ case'repLoc':{const l=S.rep.locs,i=l.indexOf(id);i>=0?l.splice(i,1):l.push(id);render(true);break}
+ case'repPar':S.rep.params[id]=!S.rep.params[id];render(true);break;
+ case'repApprove':S.rep.approved=true;render(true);break;
+ case'repUnapprove':S.rep.approved=false;render(true);break;
+ case'repCsv':{const R=S.rep,from=Math.min(R.from,R.to),to=Math.max(R.from,R.to),L=['location,parameter,month,value,unit,method,source'];R.locs.forEach(id=>Object.keys(R.params).filter(k=>R.params[k]).forEach(k=>{for(let m=from;m<=to;m++)L.push([id,PARAMS[k].name,MN[m],M[id][k][m]??'',PARAMS[k].unit,PARAMS[k].method,'simulated demo data'].join(','))}));R.csv=L.join('\n');try{navigator.clipboard.writeText(R.csv).catch(()=>{})}catch(x){}render(true);break}
+ case'tour':{const i=+v;S.tour=i;TOUR[i].run();location.hash=S.screen;render();window.scrollTo(0,0);break}
+ case'tourStop':S.tour=-1;render(true);break;
+ case'startNext':S.start=Math.min(2,S.start+1);render();window.scrollTo(0,0);break;
+ case'startBack':S.start=Math.max(0,S.start-1);render();window.scrollTo(0,0);break;
+ case'startSkip':S.start=3;go('overview');break;
+ case'startShow':S.start=0;S.ack=false;render();window.scrollTo(0,0);break;
+ case'startPick':S.start=3;if(v==='tour'){S.tour=0;TOUR[0].run();location.hash=S.screen;render();window.scrollTo(0,0)}else if(v==='map'){S.map.sel='SP-12';go('map')}else if(v==='report'){S.rep.step=6;go('report')}else go('overview');break;
+ }});
+function onInput(e){const el=e.target;if(el.dataset.act==='file'){S.lab.impFile=el.files[0]?el.files[0].name:'';S.lab.imp=S.lab.impFile?1:0;render(true);return}
+ const p=el.dataset.path;if(!p)return;let v=el.type==='checkbox'?el.checked:el.value;if(el.type==='range'||el.dataset.num)v=+v;
+ if(['map.m','map.cmp','rep.from','rep.to'].includes(p))v=+v;
+ setPath(S,p,v);if(p==='lab.q'||p==='lab.param'||p==='lab.loc'||p==='lab.status'||p==='lab.issues')S.lab.page=0;
+ if(p==='map.m'&&el.type==='range'){render(true);return}
+ render(true)}
+document.addEventListener('input',onInput);document.addEventListener('change',e=>{if(e.target.dataset.act==='file')onInput(e)});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(SCREENS.some(s=>s[0]===h)&&h!==S.screen){S.screen=h;S.anim=h==='overview';render();window.scrollTo(0,0)}});
+{const h=location.hash.slice(1);if(SCREENS.some(s=>s[0]===h))S.screen=h}
+render();
 </script>
 
 </body></html>
